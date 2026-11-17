@@ -21,7 +21,7 @@
         --line: #d9ddda;
         --ink: #242a2b;
         --muted: #768083;
-        --green: #27a33e;
+        --green: #2cac74;
         --s-todo: #6f7c84;
         --s-progress: #3a7fd0;
         --s-pending: #a97c0a;
@@ -135,10 +135,10 @@
         margin: 0;
       }
       h1 .ly {
-        color: #2cac74;
+        color: var(--green);
       }
       .tag {
-        color: #2b8961;
+        color: var(--green);
         font-size: 11px;
         font-weight: 600;
         line-height: 1.2;
@@ -976,7 +976,6 @@
             <div class="pmenu" id="profileMenu" hidden role="menu">
               <div class="pname" id="profileName"></div>
               <div class="pemail" id="accountEmail"></div>
-              <div class="pemail" id="accountMethod"></div>
               <button type="button" class="out" id="signOut" role="menuitem">
                 Sign out
               </button>
@@ -2375,8 +2374,6 @@
           $("avatarBtn").title = name;
           $("profileName").textContent = name;
           $("accountEmail").textContent = u.email || "";
-          $("accountMethod").textContent =
-            "Signed in with " + signedInWith(u) + " · " + u.uid;
           $("foot").textContent = ready
             ? "Signed in. This account stays in sync across devices."
             : "Loading your tasks and notes…";
