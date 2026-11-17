@@ -2,7 +2,7 @@
  
 **Bring your tasks and notes into orbit.**
  
-Orbitly is a small, single-file web app for planning your day. Track tasks by date and status, tag them with flags, and keep titled notes alongside them. Everything is saved locally in your browser, with no backend or account.
+Orbitly is a small web app for planning your day. Track tasks by date and status, tag them with flags, and keep titled notes alongside them. Sign in with an email account and the same lists stay in sync on your phone and computer.
  
 ## Features
  
@@ -30,23 +30,57 @@ Orbitly is a small, single-file web app for planning your day. Track tasks by da
 | Ctrl/Cmd + Enter | Add or save the task or note |
  
 ## Data storage
-Orbitly uses **IndexedDB** (database `daily-tasks`, stores `tasks` and `notes`). Data is saved per browser and per site address.
- 
-- Data does not sync across devices or browsers.
-- Clearing site data in your browser deletes your tasks and notes.
-- Moving the app to a different URL starts with empty data.
-If IndexedDB is unavailable (for example in some private modes), the app still works for the session and shows a notice that data won't persist.
- 
+Tasks and notes live in **Cloud Firestore**, one set per signed-in account:
+
+- `users/{uid}/tasks/{id}`
+- `users/{uid}/notes/{id}`
+
+Devices signed in with the same email share that list. Firestore keeps a local cache, so the last data still shows while offline and uploads when the connection returns.
+
+The first time an account signs in on a browser that still has the old IndexedDB database (`daily-tasks`) and the cloud lists are empty, those local tasks and notes are uploaded once. Later sign-ins do not upload them again.
+
+## Firebase setup
+The page does not ship with a project of its own. Create one on the free Spark plan, then paste the web config into `firebase-config.js`.
+
+1. In the [Firebase console](https://console.firebase.google.com/), create a project and add a Web app.
+2. Enable **Authentication → Email/Password** and **Google**.
+3. Under **Authentication → Settings → Authorized domains**, add `orbitly.bytemelabs.in` and `localhost`.
+4. Create a **Cloud Firestore** database.
+5. Paste these rules so each person can only read and write their own tasks and notes:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{collection}/{docId} {
+      allow read, write: if request.auth != null && request.auth.uid == uid
+        && collection in ['tasks', 'notes'];
+    }
+  }
+}
+```
+
+6. Copy the web app config into `firebase-config.js` (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`).
+
+The web API key is public. The rules above are what keep accounts private.
+
 ## Tech
-- Plain HTML, CSS and JavaScript in one file (`index.html`).
-- No build step and no dependencies.
+- Plain HTML, CSS and JavaScript in `index.html`.
+- Firebase Authentication and Cloud Firestore, loaded from the Firebase compat CDN.
+- No build step.
 - Manrope from Google Fonts, with a system font fallback.
 ## Run locally
-Open `index.html` in a browser. No server is needed.
+Serve the folder over HTTP (Firebase Auth does not run from a `file://` address). For example:
+
+```
+python3 -m http.server 8765
+```
+
+Then open `http://localhost:8765/`. `localhost` must be an authorized domain in the Firebase project.
  
 ## Deploy to GitHub Pages
 1. Create a public repository, for example `orbitly`.
-2. Add `index.html` (and this README) to the repository root.
+2. Add `index.html`, `firebase-config.js` (and this README) to the repository root.
 3. Go to **Settings → Pages**.
 4. Under **Build and deployment**, set **Source** to **Deploy from a branch**, choose `main` and `/ (root)`, and save.
 5. Your site will be live at `https://<your-username>.github.io/orbitly/`.
@@ -55,7 +89,9 @@ Other static hosts work too: Netlify Drop, Cloudflare Pages and Vercel.
 ## Project structure
 ```
 orbitly/
-├── index.html   # the entire app
+├── index.html           # the app
+├── firebase-config.js   # Firebase web config (paste yours here)
+├── CNAME
 └── README.md
 ```
  
