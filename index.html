@@ -138,7 +138,7 @@
         color: #2cac74;
       }
       .tag {
-        color: #2cac74;
+        color: #2b8961;
         font-size: 11px;
         font-weight: 600;
         line-height: 1.2;
@@ -843,6 +843,43 @@
         width: 22px;
         height: 22px;
       }
+      .gate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        padding: 72px 16px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .gate p {
+        margin: 0;
+        font-size: 14px;
+      }
+      .gate-list {
+        padding: 48px 16px;
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+      }
+      .spin {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 3px solid var(--line);
+        border-top-color: var(--green);
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .spin {
+          animation: none;
+        }
+      }
       footer {
         margin-top: 24px;
         color: var(--muted);
@@ -903,26 +940,28 @@
         </div>
         <div class="headside">
           <div class="tabs" id="tabs" role="tablist" hidden>
-          <button
-            type="button"
-            class="tab"
-            id="tabTasks"
-            role="tab"
-            aria-selected="true"
-          >
-            Tasks
-          </button>
-          <button
-            type="button"
-            class="tab"
-            id="tabNotes"
-            role="tab"
-            aria-selected="false"
-          >
-            Notes
-          </button>
+            <button
+              type="button"
+              class="tab"
+              id="tabTasks"
+              role="tab"
+              aria-selected="true"
+            >
+              Tasks
+            </button>
+            <button
+              type="button"
+              class="tab"
+              id="tabNotes"
+              role="tab"
+              aria-selected="false"
+            >
+              Notes
+            </button>
           </div>
-          <button type="button" class="navlogin" id="navLogin">Sign in</button>
+          <button type="button" class="navlogin" id="navLogin" hidden>
+            Sign in
+          </button>
           <div class="profile" id="account" hidden>
             <button
               type="button"
@@ -937,6 +976,7 @@
             <div class="pmenu" id="profileMenu" hidden role="menu">
               <div class="pname" id="profileName"></div>
               <div class="pemail" id="accountEmail"></div>
+              <div class="pemail" id="accountMethod"></div>
               <button type="button" class="out" id="signOut" role="menuitem">
                 Sign out
               </button>
@@ -946,8 +986,12 @@
       </div>
     </header>
     <main>
+      <div id="bootLoader" class="gate" role="status" aria-live="polite">
+        <div class="spin" aria-hidden="true"></div>
+        <p>Checking your account…</p>
+      </div>
 
-      <section id="authView" class="auth">
+      <section id="authView" class="auth" hidden>
         <h2 id="authTitle">Sign in</h2>
         <p class="authlead" id="authLead">
           Use your email or Google. This account syncs on every device.
@@ -1139,7 +1183,7 @@
         <div class="fbar" id="nbar"></div>
         <div id="nlist"></div>
       </section>
-      <footer id="foot">Sign in to sync this account across devices.</footer>
+      <footer id="foot">Checking your account…</footer>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
@@ -1187,7 +1231,15 @@
           fs = null,
           stops = [],
           seen = { tasks: false, notes: false },
-          session = 0;
+          cloudCount = { tasks: 0, notes: 0 },
+          restCount = { tasks: 0, notes: 0 },
+          liveSeen = { tasks: false, notes: false },
+          pending = { tasks: {}, notes: {} },
+          dropped = { tasks: {}, notes: {} },
+          loadProblem = "",
+          session = 0,
+          authSettled = false,
+          uploadStarted = false;
         var T = {
           status: "all",
           flag: "all",
@@ -1338,22 +1390,51 @@
         }
         var put = function (store, o) {
           if (!user || !fs || !o || !o.id) return Promise.resolve();
+          var key = String(o.id);
+          pending[store][key] = o;
+          delete dropped[store][key];
           return userCol(store)
-            .doc(String(o.id))
+            .doc(key)
             .set(o)
-            .catch(function () {
-              syncNote();
+            .catch(function (err) {
+              syncNote(loadError(err));
             });
         };
         var del = function (store, id) {
           if (!user || !fs || !id) return Promise.resolve();
+          var key = String(id);
+          delete pending[store][key];
+          dropped[store][key] = true;
           return userCol(store)
-            .doc(String(id))
+            .doc(key)
             .delete()
-            .catch(function () {
-              syncNote();
+            .then(function () {
+              delete dropped[store][key];
+            })
+            .catch(function (err) {
+              delete dropped[store][key];
+              syncNote(loadError(err));
             });
         };
+        function mergeSnap(name, list) {
+          var byId = {};
+          list.forEach(function (x) {
+            byId[String(x.id)] = x;
+          });
+          Object.keys(dropped[name]).forEach(function (id) {
+            delete byId[id];
+          });
+          Object.keys(pending[name]).forEach(function (id) {
+            var local = pending[name][id];
+            var remote = byId[id];
+            if (!remote || (remote.updated || 0) < (local.updated || 0))
+              byId[id] = local;
+            else delete pending[name][id];
+          });
+          return Object.keys(byId).map(function (id) {
+            return byId[id];
+          });
+        }
         function stopListen() {
           stops.forEach(function (u) {
             u();
@@ -1363,42 +1444,71 @@
         }
         function takeSnap(name, snap) {
           var list = [];
+          cloudCount[name] = snap.size;
           snap.forEach(function (d) {
             var x = d.data() || {};
             if (!x.id) x.id = d.id;
             list.push(x);
           });
+          list = mergeSnap(name, list);
           if (name === "tasks") tasks = migrate(list, "tasks");
           else notes = migrate(list, "notes");
           seen[name] = true;
-          if (!seen.tasks || !seen.notes) return;
-          var first = !ready;
-          ready = true;
-          if (first) {
-            renderTasks();
-            renderNotes();
-            return;
+          if (name === "tasks") renderTasks();
+          else renderNotes();
+          if (seen.tasks && seen.notes) {
+            ready = true;
+            if (!loadProblem)
+              $("foot").textContent =
+                "Signed in. This account stays in sync across devices.";
           }
+        }
+        function loadError(err) {
+          var code = (err && err.code) || "";
+          var detail = (err && err.message) || "";
+          if (
+            code === "permission-denied" ||
+            detail.indexOf("Missing or insufficient permissions") !== -1 ||
+            detail.indexOf("PERMISSION_DENIED") !== -1
+          )
+            return "Firestore rules are blocking this account. Publish the rules, then refresh.";
+          if (detail.indexOf("does not exist") !== -1)
+            return "This project has no Cloud Firestore database named (default). Create that database, then refresh.";
+          return detail || "Could not load your tasks. Check your connection and try again.";
+        }
+        function showLoadError(name, err) {
+          loadProblem = loadError(err);
+          seen[name] = true;
+          ready = seen.tasks && seen.notes;
+          $("foot").textContent = loadProblem;
           if (name === "tasks") renderTasks();
           else renderNotes();
         }
         function listen() {
           stopListen();
-          ready = false;
+          var mine = session;
+          loadProblem = "";
           ["tasks", "notes"].forEach(function (name) {
+            userCol(name)
+              .get()
+              .then(function (snap) {
+                if (mine !== session) return;
+                takeSnap(name, snap);
+              })
+              .catch(function (err) {
+                if (mine !== session) return;
+                showLoadError(name, err);
+              });
             stops.push(
               userCol(name).onSnapshot(
                 function (snap) {
+                  if (mine !== session) return;
+                  loadProblem = "";
                   takeSnap(name, snap);
                 },
-                function () {
-                  syncNote();
-                  seen[name] = true;
-                  if (seen.tasks && seen.notes && !ready) {
-                    ready = true;
-                    renderTasks();
-                    renderNotes();
-                  }
+                function (err) {
+                  if (mine !== session || seen[name]) return;
+                  showLoadError(name, err);
                 }
               )
             );
@@ -1457,18 +1567,16 @@
               });
             });
         }
-        function migrateCloud(uid) {
-          if (alreadyMoved(uid)) return Promise.resolve();
-          var base = fs.collection("users").doc(uid);
-          return Promise.all([
-            base.collection("tasks").limit(1).get(),
-            base.collection("notes").limit(1).get(),
-          ]).then(function (snaps) {
-            if (!snaps[0].empty || !snaps[1].empty) {
-              markMoved(uid);
-              return;
-            }
-            return uploadLocal(uid);
+        function maybeUploadLocal() {
+          if (!user || uploadStarted || alreadyMoved(user.uid)) return;
+          if (!seen.tasks || !seen.notes) return;
+          if (cloudCount.tasks || cloudCount.notes) {
+            markMoved(user.uid);
+            return;
+          }
+          uploadStarted = true;
+          uploadLocal(user.uid).catch(function () {
+            syncNote();
           });
         }
 
@@ -1800,8 +1908,22 @@
         }
 
         /* ---------- tasks ---------- */
+        function listLoader(msg) {
+          var d = el("div", "gate gate-list");
+          d.setAttribute("role", "status");
+          d.appendChild(el("div", "spin"));
+          d.appendChild(el("p", null, msg));
+          return d;
+        }
         function renderTasks() {
-          if (!ready) return;
+          if (!user) return;
+          var box = $("tlist");
+          if (!seen.tasks && !tasks.length) {
+            $("stats").textContent = "";
+            box.textContent = "";
+            box.appendChild(listLoader("Loading tasks…"));
+            return;
+          }
           var base = tasks.filter(function (t) {
             return (
               inRange(t.date, T.from, T.to) &&
@@ -1833,7 +1955,12 @@
               emptyState(
                 tasks.length
                   ? "No tasks match these filters."
-                  : "No tasks yet. Add your first task above."
+                  : loadProblem ||
+                    "No tasks yet. Add your first task above. This list belongs to " +
+                      signedInWith(user) +
+                      " for " +
+                      ((user && user.email) || "this account") +
+                      "."
               )
             );
             return;
@@ -1942,7 +2069,13 @@
 
         /* ---------- notes ---------- */
         function renderNotes() {
-          if (!ready) return;
+          if (!user) return;
+          var box = $("nlist");
+          if (!seen.notes && !notes.length) {
+            box.textContent = "";
+            box.appendChild(listLoader("Loading notes…"));
+            return;
+          }
           var q = N.q.trim().toLowerCase();
           var list = notes.filter(function (n) {
             return (
@@ -1950,14 +2083,18 @@
               (!q || (n.title + " " + n.body).toLowerCase().indexOf(q) >= 0)
             );
           });
-          var box = $("nlist");
           box.textContent = "";
           if (!list.length) {
             box.appendChild(
               emptyState(
                 notes.length
                   ? "No notes match these filters."
-                  : "No notes yet. Add a title and write your first note above."
+                  : loadProblem ||
+                    "No notes yet. Add a title and write your first note above. This list belongs to " +
+                      signedInWith(user) +
+                      " for " +
+                      ((user && user.email) || "this account") +
+                      "."
               )
             );
             return;
@@ -2174,6 +2311,32 @@
           var email = (u && u.email) || "";
           return email.split("@")[0] || "Account";
         }
+        function signedInWith(u) {
+          var ids = {};
+          ((u && u.providerData) || []).forEach(function (p) {
+            ids[p.providerId] = true;
+          });
+          if (ids["google.com"] && ids["password"]) return "email and Google";
+          if (ids["google.com"]) return "Google";
+          if (ids["password"]) return "email and password";
+          return "this sign-in method";
+        }
+        function hideBoot() {
+          $("bootLoader").hidden = true;
+        }
+        function friendlyAuth(err) {
+          var code = err && err.code;
+          if (code === "auth/account-exists-with-different-credential")
+            return "This email already has a password account. Sign in with email and password to see those tasks. Google is a separate account and starts empty.";
+          if (code === "auth/unauthorized-domain")
+            return "This site is not an authorized domain in Firebase Authentication.";
+          if (
+            code === "auth/web-storage-unsupported" ||
+            code === "auth/operation-not-supported-in-this-environment"
+          )
+            return "This browser blocked sign-in storage. Allow cookies for this site, then try again.";
+          return (err && err.message) || "Something went wrong.";
+        }
         function initials(name) {
           var parts = String(name || "")
             .trim()
@@ -2197,7 +2360,8 @@
           $("account").hidden = true;
           $("navLogin").hidden = false;
           $("tabs").hidden = true;
-          $("foot").textContent = "Sign in to sync this account across devices.";
+          $("foot").textContent =
+            "Sign in to sync this account across devices.";
         }
         function showApp(u) {
           var name = personName(u);
@@ -2211,8 +2375,11 @@
           $("avatarBtn").title = name;
           $("profileName").textContent = name;
           $("accountEmail").textContent = u.email || "";
-          $("foot").textContent =
-            "Signed in. This account stays in sync across devices.";
+          $("accountMethod").textContent =
+            "Signed in with " + signedInWith(u) + " · " + u.uid;
+          $("foot").textContent = ready
+            ? "Signed in. This account stays in sync across devices."
+            : "Loading your tasks and notes…";
           setView(
             $("tabNotes").getAttribute("aria-selected") === "true"
               ? "notes"
@@ -2221,16 +2388,11 @@
         }
         function authError(err) {
           $("authErr").hidden = false;
-          $("authErr").textContent =
-            (err && err.message) || "Something went wrong.";
+          $("authErr").textContent = friendlyAuth(err);
         }
         function configured() {
           var c = window.FIREBASE_CONFIG || {};
-          return !!(
-            c.apiKey &&
-            c.projectId &&
-            typeof firebase !== "undefined"
-          );
+          return !!(c.apiKey && c.projectId && typeof firebase !== "undefined");
         }
         var signingUp = false;
         function paintAuth() {
@@ -2258,26 +2420,24 @@
           var provider = new firebase.auth.GoogleAuthProvider();
           provider.setCustomParameters({ prompt: "select_account" });
           var auth = firebase.auth();
-          var narrow = window.matchMedia("(max-width: 720px)").matches;
-          var p = narrow
-            ? auth.signInWithRedirect(provider)
-            : auth.signInWithPopup(provider).catch(function (err) {
-                if (
-                  err &&
-                  (err.code === "auth/popup-blocked" ||
-                    err.code ===
-                      "auth/operation-not-supported-in-this-environment")
-                )
-                  return auth.signInWithRedirect(provider);
-                throw err;
-              });
-          p.catch(function (err) {
+          auth.signInWithPopup(provider).catch(function (err) {
             if (
               err &&
               (err.code === "auth/popup-closed-by-user" ||
                 err.code === "auth/cancelled-popup-request")
             )
               return;
+            if (
+              err &&
+              (err.code === "auth/popup-blocked" ||
+                err.code === "auth/operation-not-supported-in-this-environment")
+            ) {
+              authError({
+                message:
+                  "The sign-in window was blocked. Allow popups for this site and try Google again. If your tasks were created with email and password, use that instead. Google is a separate account.",
+              });
+              return;
+            }
             authError(err);
           });
         }
@@ -2356,6 +2516,7 @@
           bindAuth();
           paintAuth();
           if (!configured()) {
+            hideBoot();
             showAuth();
             authError({
               message:
@@ -2366,44 +2527,51 @@
           }
           firebase.initializeApp(window.FIREBASE_CONFIG);
           fs = firebase.firestore();
-          firebase
-            .auth()
-            .getRedirectResult()
-            .catch(authError);
-          var persistReady = Promise.resolve();
           try {
-            persistReady = fs
-              .enablePersistence({ synchronizeTabs: true })
-              .catch(function () {});
+            fs.settings({ useFetchStreams: false });
           } catch (e) {}
           firebase.auth().onAuthStateChanged(function (u) {
+            if (authSettled && u && user && u.uid === user.uid) {
+              user = u;
+              showApp(u);
+              return;
+            }
             var mine = ++session;
+            authSettled = true;
+            uploadStarted = false;
             stopListen();
             user = u;
             tasks = [];
             notes = [];
+            pending = { tasks: {}, notes: {} };
+            dropped = { tasks: {}, notes: {} };
+            cloudCount = { tasks: 0, notes: 0 };
+            restCount = { tasks: 0, notes: 0 };
+            liveSeen = { tasks: false, notes: false };
+            loadProblem = "";
             ready = false;
+            hideBoot();
             if (!u) {
               clearAuthForm();
               showAuth();
               return;
             }
             showApp(u);
-            persistReady
-              .then(function () {
-                if (mine !== session) return;
-                return migrateCloud(u.uid);
-              })
-              .then(function () {
-                if (mine !== session || !user) return;
-                listen();
-              })
-              .catch(function () {
-                if (mine !== session) return;
-                syncNote();
-                listen();
-              });
+            renderTasks();
+            renderNotes();
+            if (mine !== session) return;
+            listen();
           });
+          firebase
+            .auth()
+            .getRedirectResult()
+            .catch(function (err) {
+              if (!firebase.auth().currentUser) {
+                hideBoot();
+                showAuth();
+              }
+              authError(err);
+            });
         }
         boot();
       })();
