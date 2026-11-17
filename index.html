@@ -28,6 +28,7 @@
         --s-done: #1f8f35;
         --f-backend: #4f9cf0;
         --f-frontend: #f2c14e;
+        --f-both: #8b7cf6;
         --f-swag: #f08a5d;
         --f-cert: #b48cf2;
         --f-h2s: #3fc7b0;
@@ -663,8 +664,24 @@
       .fpill {
         color: var(--muted);
         border: 1px solid var(--line);
-        padding: 2px 10px;
+        padding: 2px 4px 2px 10px;
         font-weight: 500;
+      }
+      .fpill select {
+        appearance: none;
+        -webkit-appearance: none;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-weight: 500;
+        padding: 2px 14px 2px 0;
+        cursor: pointer;
+        max-width: 148px;
+      }
+      .fpill select option {
+        color: var(--ink);
+        background: var(--raised);
       }
       .dot {
         width: 8px;
@@ -1194,6 +1211,7 @@
         var FLAGS = [
           { id: "backend", l: "Backend", dot: "var(--f-backend)" },
           { id: "frontend", l: "Frontend", dot: "var(--f-frontend)" },
+          { id: "frontend-backend", l: "Frontend-backend", dot: "var(--f-both)" },
           { id: "swag", l: "Swag store", dot: "var(--f-swag)" },
           { id: "certificate", l: "Certificate", dot: "var(--f-cert)" },
           { id: "h2s", l: "hello.h2s", dot: "var(--f-h2s)" },
@@ -1242,6 +1260,7 @@
         var T = {
           status: "all",
           flag: "all",
+          q: "",
           preset: "30",
           from: "",
           to: "",
@@ -1923,10 +1942,15 @@
             box.appendChild(listLoader("Loading tasks…"));
             return;
           }
+          var q = T.q.trim().toLowerCase();
           var base = tasks.filter(function (t) {
+            var tag = flagById(t.flag).l.toLowerCase();
             return (
               inRange(t.date, T.from, T.to) &&
-              (T.flag === "all" || t.flag === T.flag)
+              (T.flag === "all" || t.flag === T.flag) &&
+              (!q ||
+                (t.text || "").toLowerCase().indexOf(q) >= 0 ||
+                tag.indexOf(q) >= 0)
             );
           });
           var sb = $("stats");
@@ -2024,9 +2048,27 @@
           };
           var f = flagById(t.flag),
             fp = el("span", "fpill"),
-            meta = el("span", "meta");
+            meta = el("span", "meta"),
+            tag = el("select");
+          tag.title = "Change tag";
+          tag.setAttribute("aria-label", "Tag");
+          FLAGS.forEach(function (item) {
+            var o = el("option", null, item.l);
+            o.value = item.id;
+            if (item.id === f.id) o.selected = true;
+            tag.appendChild(o);
+          });
+          tag.onclick = function (e) {
+            e.stopPropagation();
+          };
+          tag.onchange = function () {
+            t.flag = tag.value;
+            t.updated = Date.now();
+            put("tasks", t);
+            renderTasks();
+          };
           fp.appendChild(dot(f.dot));
-          fp.appendChild(document.createTextNode(f.l));
+          fp.appendChild(tag);
           meta.appendChild(sel);
           meta.appendChild(fp);
           h.appendChild(el("span", "lead", snippet(t.text)));
@@ -2211,9 +2253,17 @@
               T.flag = v;
               renderTasks();
             },
-            items: [{ id: "all", l: "All flags" }].concat(FLAGS),
+            items: [{ id: "all", l: "All tags" }].concat(FLAGS),
           });
-          buildBar($("tbar"), T, renderTasks, [fl]);
+          var tq = el("input");
+          tq.type = "text";
+          tq.placeholder = "Search tasks";
+          tq.setAttribute("aria-label", "Search tasks");
+          tq.oninput = function () {
+            T.q = tq.value;
+            renderTasks();
+          };
+          buildBar($("tbar"), T, renderTasks, [tq, fl]);
           var sq = el("input");
           sq.type = "text";
           sq.placeholder = "Search notes";
