@@ -826,6 +826,9 @@
       .row.open .rb {
         display: flex;
       }
+      .binrow.open > .rb {
+        flex-wrap: wrap;
+      }
       .rb textarea {
         flex: 1;
       }
@@ -994,6 +997,84 @@
       }
       .sideitem[aria-selected="true"] .ico {
         color: var(--green);
+      }
+      .bincount {
+        margin-left: auto;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--raised);
+        color: var(--ink);
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .sideitem[aria-selected="true"] .bincount {
+        background: var(--bg);
+      }
+      .kind {
+        flex: none;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 2px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .binrow > .rh {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+      }
+      .binrow > .rh > .chev {
+        margin-left: 0;
+      }
+      .binfacts {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        margin: 0 0 8px;
+        color: color-mix(in srgb, var(--ink) 78%, var(--muted));
+        font-size: 13px;
+      }
+      .textbtn {
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: var(--raised);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .textbtn.go {
+        color: var(--green);
+      }
+      .textbtn.danger {
+        color: #d4533e;
+      }
+      .binconfirm {
+        flex: 1 0 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 4px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        color: color-mix(in srgb, var(--ink) 88%, var(--muted));
+        font-size: 13px;
+      }
+      .binconfirm p {
+        margin: 0;
+      }
+      .confirmactions {
+        display: flex;
+        flex: none;
+        gap: 8px;
       }
       .sidefoot {
         margin-top: auto;
@@ -1202,6 +1283,13 @@
           grid-row: 2;
           justify-content: flex-start;
         }
+        .binrow.open > .rb {
+          flex-direction: column;
+        }
+        .binconfirm {
+          flex-direction: column;
+          align-items: flex-start;
+        }
       }
       .accountbtn .avatar {
         display: inline-flex;
@@ -1257,6 +1345,19 @@
               <path d="M16 17H8" />
             </svg>
             Notes
+          </button>
+          <button
+            type="button"
+            class="sideitem"
+            id="tabBin"
+            role="tab"
+            aria-selected="false"
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13" />
+            </svg>
+            <span>Bin</span>
+            <span class="bincount" id="binCount" hidden>0</span>
           </button>
         </nav>
         <div class="sidefoot">
@@ -1529,6 +1630,10 @@
         <div class="fbar" id="nbar"></div>
         <div id="nlist"></div>
       </section>
+
+      <section id="binView" hidden>
+        <div id="blist"></div>
+      </section>
       <footer id="foot">Checking your account…</footer>
         </main>
       </div>
@@ -1607,6 +1712,7 @@
           sort: "desc",
           open: {},
         };
+        var B = { open: {}, confirm: {} };
         var composerStatus = "todo",
           composerFlag = "backend";
 
@@ -1806,6 +1912,7 @@
           seen[name] = true;
           if (name === "tasks") renderTasks();
           else renderNotes();
+          renderBin();
           if (seen.tasks && seen.notes) {
             ready = true;
             if (!loadProblem)
@@ -1833,6 +1940,7 @@
           $("foot").textContent = loadProblem;
           if (name === "tasks") renderTasks();
           else renderNotes();
+          renderBin();
         }
         function listen() {
           stopListen();
@@ -2303,7 +2411,10 @@
             return;
           }
           var query = T.q.trim().toLowerCase();
-          var base = tasks.filter(function (task) {
+          var active = tasks.filter(function (task) {
+            return !task.deletedAt;
+          });
+          var base = active.filter(function (task) {
             var tag = flagById(task.flag).label.toLowerCase();
             return (
               inRange(task.date, T.from, T.to) &&
@@ -2336,8 +2447,10 @@
           if (!list.length) {
             box.appendChild(
               emptyState(
-                tasks.length
+                active.length
                   ? "No tasks match these filters."
+                  : tasks.length
+                  ? "No tasks in this list. Restore them from the Bin."
                   : loadProblem ||
                     "No tasks yet. Add your first task above. This list belongs to " +
                       signedInWith(user) +
@@ -2455,10 +2568,8 @@
               })
             );
             actions.appendChild(
-              iconBtn("del", "Delete task", function () {
-                del("tasks", task.id);
-                drop(tasks, task.id);
-                renderTasks();
+              iconBtn("del", "Move to bin", function () {
+                moveToBin("tasks", task);
               })
             );
             body.appendChild(textBox);
@@ -2478,7 +2589,10 @@
             return;
           }
           var query = N.q.trim().toLowerCase();
-          var list = notes.filter(function (note) {
+          var active = notes.filter(function (note) {
+            return !note.deletedAt;
+          });
+          var list = active.filter(function (note) {
             return (
               inRange(note.date, N.from, N.to) &&
               (!query || (note.title + " " + note.body).toLowerCase().indexOf(query) >= 0)
@@ -2488,8 +2602,10 @@
           if (!list.length) {
             box.appendChild(
               emptyState(
-                notes.length
+                active.length
                   ? "No notes match these filters."
+                  : notes.length
+                  ? "No notes in this list. Restore them from the Bin."
                   : loadProblem ||
                     "No notes yet. Add a title and write your first note above. This list belongs to " +
                       signedInWith(user) +
@@ -2543,16 +2659,192 @@
               })
             );
             actions.appendChild(
-              iconBtn("del", "Delete note", function () {
-                del("notes", note.id);
-                drop(notes, note.id);
-                renderNotes();
+              iconBtn("del", "Move to bin", function () {
+                moveToBin("notes", note);
               })
             );
             body.appendChild(textBox);
             body.appendChild(actions);
             row.appendChild(body);
           }
+          return row;
+        }
+
+        function binEntries() {
+          var entries = [];
+          tasks.forEach(function (task) {
+            if (task.deletedAt)
+              entries.push({ kind: "Task", store: "tasks", item: task });
+          });
+          notes.forEach(function (note) {
+            if (note.deletedAt)
+              entries.push({ kind: "Note", store: "notes", item: note });
+          });
+          entries.sort(function (first, second) {
+            return second.item.deletedAt - first.item.deletedAt;
+          });
+          return entries;
+        }
+        function updateBinCount() {
+          var badge = $("binCount");
+          if (!badge) return;
+          var count = binEntries().length;
+          badge.textContent = String(count);
+          badge.hidden = count === 0;
+        }
+        function createdOn(item) {
+          if (item.created) return shortDate(ymd(new Date(item.created)));
+          return item.date ? shortDate(item.date) : "";
+        }
+        function movedOn(timestamp) {
+          var when = new Date(timestamp);
+          var timeText = when.toLocaleTimeString(undefined, {
+            hour: "numeric",
+            minute: "2-digit",
+          });
+          return shortDate(ymd(when)) + " " + timeText;
+        }
+        function moveToBin(store, item) {
+          item.deletedAt = Date.now();
+          item.updated = item.deletedAt;
+          put(store, item);
+          if (store === "tasks") renderTasks();
+          else renderNotes();
+          renderBin();
+        }
+        function restoreItem(store, item) {
+          delete item.deletedAt;
+          item.updated = Date.now();
+          put(store, item);
+          delete B.confirm[item.id];
+          renderTasks();
+          renderNotes();
+          renderBin();
+        }
+        function purgeItem(store, item) {
+          del(store, item.id);
+          drop(store === "tasks" ? tasks : notes, item.id);
+          delete B.open[item.id];
+          delete B.confirm[item.id];
+          if (store === "tasks") renderTasks();
+          else renderNotes();
+          renderBin();
+        }
+        function textButton(className, label, onClick) {
+          var button = el("button", className, label);
+          button.type = "button";
+          button.onclick = function (event) {
+            event.stopPropagation();
+            onClick();
+          };
+          return button;
+        }
+        function binTitle(entry) {
+          if (entry.kind === "Note") return entry.item.title || "Untitled note";
+          return taskTitle(entry.item.text || "") || "Untitled task";
+        }
+        function renderBin() {
+          var box = $("blist");
+          if (!box) return;
+          updateBinCount();
+          if (!seen.tasks || !seen.notes) {
+            box.textContent = "";
+            box.appendChild(listLoader("Loading bin…"));
+            return;
+          }
+          var entries = binEntries();
+          box.textContent = "";
+          if (!entries.length) {
+            box.appendChild(
+              emptyState("The bin is empty. Tasks and notes you remove will wait here.")
+            );
+            return;
+          }
+          var byDay = {};
+          entries.forEach(function (entry) {
+            var day = ymd(new Date(entry.item.deletedAt));
+            (byDay[day] = byDay[day] || []).push(entry);
+          });
+          var panel = el("div", "panel");
+          Object.keys(byDay)
+            .sort()
+            .reverse()
+            .forEach(function (day) {
+              var section = el("section", "group"),
+                heading = el("h3"),
+                count = byDay[day].length;
+              heading.appendChild(el("span", null, dlabel(day)));
+              heading.appendChild(
+                el("span", null, count + (count === 1 ? " item" : " items"))
+              );
+              section.appendChild(heading);
+              byDay[day].forEach(function (entry) {
+                section.appendChild(binRow(entry));
+              });
+              panel.appendChild(section);
+            });
+          box.appendChild(panel);
+        }
+        function binRow(entry) {
+          var item = entry.item,
+            open = !!B.open[item.id],
+            row = el("div", "row binrow" + (open ? " open" : "")),
+            rowHeader = header(open, function () {
+              B.open[item.id] = !open;
+              renderBin();
+            });
+          rowHeader.appendChild(el("span", "kind", entry.kind));
+          rowHeader.appendChild(el("span", "lead", binTitle(entry)));
+          rowHeader.appendChild(chev());
+          row.appendChild(rowHeader);
+          if (!open) return row;
+          var body = el("div", "rb"),
+            textBox = el("div", "txt"),
+            facts = el("div", "binfacts");
+          facts.appendChild(el("div", null, "Created: " + createdOn(item)));
+          facts.appendChild(el("div", null, "Moved: " + movedOn(item.deletedAt)));
+          textBox.appendChild(facts);
+          renderText(
+            textBox,
+            entry.kind === "Note" ? item.body || "" : item.text || ""
+          );
+          body.appendChild(textBox);
+          if (B.confirm[item.id]) {
+            var confirmBox = el("div", "binconfirm"),
+              confirmActions = el("div", "confirmactions");
+            confirmBox.appendChild(
+              el("p", null, "Delete this permanently? It cannot be recovered.")
+            );
+            confirmActions.appendChild(
+              textButton("textbtn", "Cancel", function () {
+                delete B.confirm[item.id];
+                renderBin();
+              })
+            );
+            confirmActions.appendChild(
+              textButton("textbtn danger", "Delete permanently", function () {
+                purgeItem(entry.store, item);
+              })
+            );
+            confirmBox.appendChild(confirmActions);
+            body.appendChild(confirmBox);
+          } else {
+            var actions = el("div", "actions");
+            actions.appendChild(
+              textButton("textbtn go", "Restore", function () {
+                restoreItem(entry.store, item);
+              })
+            );
+            actions.appendChild(
+              textButton("textbtn danger", "Delete permanently", function () {
+                B.confirm[item.id] = true;
+                B.open[item.id] = true;
+                renderBin();
+              })
+            );
+            body.appendChild(actions);
+          }
+          row.appendChild(body);
           return row;
         }
 
@@ -2573,9 +2865,12 @@
         function setView(view) {
           $("tasksView").hidden = view !== "tasks";
           $("notesView").hidden = view !== "notes";
+          $("binView").hidden = view !== "bin";
           $("tabTasks").setAttribute("aria-selected", String(view === "tasks"));
           $("tabNotes").setAttribute("aria-selected", String(view === "notes"));
+          $("tabBin").setAttribute("aria-selected", String(view === "bin"));
           closeDrawer();
+          if (view === "bin") renderBin();
         }
         function widen(state, dateText) {
           var changed = false;
@@ -2668,6 +2963,10 @@
           $("tabNotes").onclick = function () {
             if (!user) return;
             setView("notes");
+          };
+          $("tabBin").onclick = function () {
+            if (!user) return;
+            setView("bin");
           };
           $("menuBtn").onclick = function () {
             if (document.body.classList.contains("drawer-open")) closeDrawer();
@@ -2803,6 +3102,7 @@
           $("authView").hidden = false;
           $("tasksView").hidden = true;
           $("notesView").hidden = true;
+          $("binView").hidden = true;
           $("account").hidden = true;
           $("topAccount").hidden = true;
           $("menuBtn").hidden = true;
@@ -2834,7 +3134,9 @@
             ? "Signed in. This account stays in sync across devices."
             : "Loading your tasks and notes…";
           setView(
-            $("tabNotes").getAttribute("aria-selected") === "true"
+            $("tabBin").getAttribute("aria-selected") === "true"
+              ? "bin"
+              : $("tabNotes").getAttribute("aria-selected") === "true"
               ? "notes"
               : "tasks"
           );
