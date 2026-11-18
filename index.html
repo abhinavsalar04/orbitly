@@ -86,7 +86,9 @@
           sans-serif;
       }
       main {
+        width: 100%;
         max-width: 900px;
+        min-width: 0;
         margin: 0 auto;
         padding: 22px 18px 64px;
       }
@@ -144,7 +146,6 @@
         font-weight: 600;
         line-height: 1.2;
         margin-top: 2px;
-        white-space: nowrap;
       }
       .tabs {
         display: inline-flex;
@@ -469,7 +470,9 @@
         font-size: 13px;
         border-radius: 0;
         position: relative;
-        width: 96px;
+        width: 7.5em;
+        min-width: 0;
+        max-width: 100%;
         outline: none;
       }
       input[type="date"]::-webkit-calendar-picker-indicator {
@@ -570,6 +573,8 @@
       }
       .fbar input[type="text"] {
         flex: 1 1 180px;
+        min-width: 0;
+        max-width: 100%;
         height: 36px;
         border-radius: 9px;
         background: var(--surface);
@@ -580,11 +585,14 @@
         align-items: center;
         gap: 8px;
         height: 36px;
+        max-width: 100%;
+        min-width: 0;
         padding: 0 12px;
         background: var(--raised);
         border: 1px solid var(--line);
         border-radius: 9px;
         font-size: 13px;
+        box-sizing: border-box;
       }
       .rng .ico {
         color: var(--muted);
@@ -627,18 +635,20 @@
       .fpill {
         display: inline-flex;
         align-items: center;
+        box-sizing: border-box;
+        height: 28px;
         gap: 6px;
-        border-radius: 999px;
+        border-radius: 8px;
         font-size: 12px;
         font-weight: 600;
-        line-height: 1.4;
+        line-height: 1;
       }
       .pill {
         --c: var(--s-todo);
         color: var(--c);
         background: transparent;
         border: 1px solid var(--line);
-        padding: 2px 10px;
+        padding: 0 10px;
       }
       .st-todo {
         --c: var(--s-todo);
@@ -656,6 +666,8 @@
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
+        height: 28px;
+        line-height: 26px;
       }
       select.pill option {
         color: var(--ink);
@@ -664,7 +676,7 @@
       .fpill {
         color: var(--muted);
         border: 1px solid var(--line);
-        padding: 2px 4px 2px 10px;
+        padding: 0 10px;
         font-weight: 500;
       }
       .fpill select {
@@ -675,7 +687,10 @@
         color: inherit;
         font: inherit;
         font-weight: 500;
-        padding: 2px 14px 2px 0;
+        height: 26px;
+        line-height: 26px;
+        padding: 0;
+        margin: 0;
         cursor: pointer;
         max-width: 148px;
       }
@@ -713,6 +728,12 @@
         font-size: 12.5px;
         font-weight: 600;
         color: var(--muted);
+      }
+      .panel,
+      .group,
+      .row {
+        min-width: 0;
+        max-width: 100%;
       }
       .row {
         background: var(--surface);
@@ -816,6 +837,10 @@
       .txt p {
         margin: 0 0 4px;
       }
+      .txt p.blank {
+        margin: 0;
+        min-height: 1em;
+      }
       .txt ul,
       .txt ol {
         margin: 0 0 4px;
@@ -902,15 +927,248 @@
         color: var(--muted);
         font-size: 13px;
       }
+      .shell {
+        min-height: 100vh;
+        display: flex;
+      }
+      .side {
+        width: 248px;
+        flex: none;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background: var(--surface);
+        border-right: 1px solid var(--line);
+        padding: 16px 12px 12px;
+        z-index: 30;
+      }
+      body:not(.signed-in) .side {
+        display: none;
+      }
+      .sidebrand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px 8px 8px;
+        min-width: 0;
+      }
+      .sidebrand .brandtext {
+        min-width: 0;
+      }
+      .side .tag {
+        white-space: normal;
+      }
+      .sidemenu {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .sideitem {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        padding: 10px 12px;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .sideitem .ico {
+        width: 18px;
+        height: 18px;
+        color: var(--muted);
+      }
+      .sideitem:hover {
+        background: color-mix(in srgb, var(--ink) 6%, transparent);
+        border-color: transparent;
+      }
+      .sideitem[aria-selected="true"] {
+        background: color-mix(in srgb, var(--green) 18%, transparent);
+        color: var(--green);
+      }
+      .sideitem[aria-selected="true"] .ico {
+        color: var(--green);
+      }
+      .sidefoot {
+        margin-top: auto;
+        position: relative;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+      .accountbtn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        padding: 8px;
+        text-align: left;
+      }
+      .accountbtn:hover {
+        background: color-mix(in srgb, var(--ink) 6%, transparent);
+        border-color: transparent;
+      }
+      .accounttext {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      .accounttext .pname,
+      .accounttext .pemail {
+        padding: 0;
+      }
+      .accounttext .pemail {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sidefoot .pmenu {
+        top: auto;
+        bottom: calc(100% + 8px);
+        left: 0;
+        right: 0;
+      }
+      .maincol {
+        flex: 1;
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow-x: clip;
+      }
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 10px 18px;
+        padding-top: calc(10px + env(safe-area-inset-top, 0px));
+        background: color-mix(in srgb, var(--bg) 88%, transparent);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(10px);
+      }
+      body.signed-in .topbar {
+        display: none;
+      }
+      .topbrand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .topbrand .mark {
+        width: 32px;
+        height: 32px;
+      }
+      .topbrand .wordmark {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        line-height: 1.05;
+      }
+      .wordmark .ly {
+        color: var(--green);
+      }
+      .topend {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .menuBtn {
+        display: none;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        align-items: center;
+        justify-content: center;
+      }
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 55;
+        background: color-mix(in srgb, #000 42%, transparent);
+        backdrop-filter: blur(6px);
+      }
+      @media (max-width: 800px) {
+        body.signed-in .topbar {
+          display: grid;
+          grid-template-columns: 40px 1fr 40px;
+          align-items: center;
+          padding: 8px 12px;
+          padding-top: calc(8px + env(safe-area-inset-top, 0px));
+        }
+        body.signed-in .topbrand {
+          justify-content: center;
+        }
+        body.signed-in .menuBtn {
+          display: inline-flex;
+        }
+        body.signed-in .side {
+          position: fixed;
+          z-index: 60;
+          left: 0;
+          top: 0;
+          width: min(280px, 86vw);
+          transform: translateX(-105%);
+          transition: transform 0.2s ease;
+        }
+        body.signed-in.drawer-open .side {
+          transform: translateX(0);
+        }
+        body.drawer-open {
+          overflow: hidden;
+        }
+        .cfoot .add {
+          flex: 1 1 100%;
+          justify-content: center;
+        }
+        .fbar > *,
+        .cfoot > *,
+        .stats,
+        .composer,
+        .panel,
+        .row,
+        .rng {
+          max-width: 100%;
+          min-width: 0;
+        }
+        .rng {
+          flex: 1 1 100%;
+          width: 100%;
+        }
+        .fbar input[type="text"] {
+          flex-basis: 100%;
+        }
+        .dd {
+          max-width: 100%;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        body.signed-in .side {
+          transition: none;
+        }
+      }
       @media (max-width: 560px) {
         .ib {
           width: 36px;
           height: 36px;
         }
         .cfoot .sp {
-          display: none;
-        }
-        .tag {
           display: none;
         }
         .mark {
@@ -920,29 +1178,44 @@
         h1 {
           font-size: 18px;
         }
-        .navin {
-          padding: 10px 12px;
-          gap: 8px;
-          flex-wrap: nowrap;
-        }
-        .headside {
-          flex-wrap: nowrap;
-          gap: 6px;
-        }
-        .tab {
-          padding: 6px 10px;
-        }
         .avatar {
           width: 32px;
           height: 32px;
         }
+        .rh:has(.meta) {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) auto;
+          align-items: center;
+        }
+        .rh:has(.meta) > .lead {
+          grid-column: 1;
+          grid-row: 1;
+          min-width: 0;
+        }
+        .rh:has(.meta) > .chev {
+          grid-column: 2;
+          grid-row: 1;
+          margin-left: 0;
+        }
+        .rh:has(.meta) > .meta {
+          grid-column: 1 / -1;
+          grid-row: 2;
+          justify-content: flex-start;
+        }
+      }
+      .accountbtn .avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
       }
     </style>
   </head>
   <body>
-    <header class="nav">
-      <div class="navin">
-        <div class="brand">
+    <div class="shell">
+      <div class="backdrop" id="backdrop" hidden></div>
+      <aside class="side" id="sidebar">
+        <div class="sidebrand">
           <img
             class="mark"
             src="orbitly-mark.png"
@@ -955,53 +1228,110 @@
             <div class="tag">Bring your tasks and notes into orbit</div>
           </div>
         </div>
-        <div class="headside">
-          <div class="tabs" id="tabs" role="tablist" hidden>
-            <button
-              type="button"
-              class="tab"
-              id="tabTasks"
-              role="tab"
-              aria-selected="true"
-            >
-              Tasks
-            </button>
-            <button
-              type="button"
-              class="tab"
-              id="tabNotes"
-              role="tab"
-              aria-selected="false"
-            >
-              Notes
-            </button>
-          </div>
-          <button type="button" class="navlogin" id="navLogin" hidden>
-            Sign in
+        <nav class="sidemenu" id="tabs" role="tablist" hidden>
+          <button
+            type="button"
+            class="sideitem"
+            id="tabTasks"
+            role="tab"
+            aria-selected="true"
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 10.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12.5" />
+              <path d="m9 11 3 3L22 4" />
+            </svg>
+            Tasks
           </button>
+          <button
+            type="button"
+            class="sideitem"
+            id="tabNotes"
+            role="tab"
+            aria-selected="false"
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+              <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+              <path d="M10 9H8" />
+              <path d="M16 13H8" />
+              <path d="M16 17H8" />
+            </svg>
+            Notes
+          </button>
+        </nav>
+        <div class="sidefoot">
           <div class="profile" id="account" hidden>
             <button
               type="button"
-              class="avatar"
-              id="avatarBtn"
+              class="accountbtn"
+              id="accountBtn"
               aria-haspopup="menu"
               aria-expanded="false"
-              title="Account"
             >
-              ?
+              <span class="avatar" id="sideInitials">?</span>
+              <span class="accounttext">
+                <span class="pname" id="profileName"></span>
+                <span class="pemail" id="accountEmail"></span>
+              </span>
             </button>
             <div class="pmenu" id="profileMenu" hidden role="menu">
-              <div class="pname" id="profileName"></div>
-              <div class="pemail" id="accountEmail"></div>
               <button type="button" class="out" id="signOut" role="menuitem">
                 Sign out
               </button>
             </div>
           </div>
         </div>
-      </div>
-    </header>
-    <main>
+      </aside>
+      <div class="maincol">
+        <header class="topbar" id="topbar">
+          <button
+            type="button"
+            class="menuBtn"
+            id="menuBtn"
+            aria-label="Open menu"
+            aria-expanded="false"
+            hidden
+          >
+            <svg class="ico" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+          <div class="topbrand">
+            <img
+              class="mark"
+              src="orbitly-mark.png"
+              alt=""
+              width="32"
+              height="32"
+            />
+            <div class="wordmark" aria-label="Orbitly">Orbit<span class="ly">ly</span></div>
+          </div>
+          <div class="topend">
+            <button type="button" class="navlogin" id="navLogin" hidden>
+              Sign in
+            </button>
+            <div class="profile" id="topAccount" hidden>
+              <button
+                type="button"
+                class="avatar"
+                id="avatarBtn"
+                aria-haspopup="menu"
+                aria-expanded="false"
+                title="Account"
+              >
+                ?
+              </button>
+              <div class="pmenu" id="topMenu" hidden role="menu">
+                <div class="pname" id="topName"></div>
+                <div class="pemail" id="topEmail"></div>
+                <button type="button" class="out" id="signOutTop" role="menuitem">
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main>
       <div id="bootLoader" class="gate" role="status" aria-live="polite">
         <div class="spin" aria-hidden="true"></div>
         <p>Checking your account…</p>
@@ -1200,7 +1530,9 @@
         <div id="nlist"></div>
       </section>
       <footer id="foot">Checking your account…</footer>
-    </main>
+        </main>
+      </div>
+    </div>
 
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
@@ -1209,12 +1541,12 @@
     <script>
       (function () {
         var FLAGS = [
-          { id: "backend", l: "Backend", dot: "var(--f-backend)" },
-          { id: "frontend", l: "Frontend", dot: "var(--f-frontend)" },
-          { id: "frontend-backend", l: "Frontend-backend", dot: "var(--f-both)" },
-          { id: "swag", l: "Swag store", dot: "var(--f-swag)" },
-          { id: "certificate", l: "Certificate", dot: "var(--f-cert)" },
-          { id: "h2s", l: "hello.h2s", dot: "var(--f-h2s)" },
+          { id: "backend", label: "Backend", dot: "var(--f-backend)" },
+          { id: "frontend", label: "Frontend", dot: "var(--f-frontend)" },
+          { id: "frontend-backend", label: "Frontend-backend", dot: "var(--f-both)" },
+          { id: "swag", label: "Swag store", dot: "var(--f-swag)" },
+          { id: "certificate", label: "Certificate", dot: "var(--f-cert)" },
+          { id: "h2s", label: "hello.h2s", dot: "var(--f-h2s)" },
         ];
         var IC = {
           list: '<path d="M11 6h9M11 12h9M11 18h9M3 6l1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/>',
@@ -1233,10 +1565,10 @@
           search: '<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',
         };
         var STAT = [
-          { id: "todo", l: "To do", ic: IC.list },
-          { id: "progress", l: "In progress", ic: IC.dash },
-          { id: "pending", l: "Pending", ic: IC.clock },
-          { id: "done", l: "Completed", ic: IC.chk },
+          { id: "todo", label: "To do", ic: IC.list },
+          { id: "progress", label: "In progress", ic: IC.dash },
+          { id: "pending", label: "Pending", ic: IC.clock },
+          { id: "done", label: "Completed", ic: IC.chk },
         ];
         var $ = function (i) {
           return document.getElementById(i);
@@ -1275,66 +1607,66 @@
           sort: "desc",
           open: {},
         };
-        var cs = "todo",
-          cf = "backend";
+        var composerStatus = "todo",
+          composerFlag = "backend";
 
-        function el(tag, cls, txt) {
-          var e = document.createElement(tag);
-          if (cls) e.className = cls;
-          if (txt != null) e.textContent = txt;
-          return e;
+        function el(tag, className, text) {
+          var element = document.createElement(tag);
+          if (className) element.className = className;
+          if (text != null) element.textContent = text;
+          return element;
         }
-        function svg(path, cls) {
-          var s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          s.setAttribute("viewBox", "0 0 24 24");
-          s.setAttribute("aria-hidden", "true");
-          s.setAttribute("class", "ico" + (cls ? " " + cls : ""));
-          s.innerHTML = path;
-          return s;
+        function svg(path, className) {
+          var icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          icon.setAttribute("viewBox", "0 0 24 24");
+          icon.setAttribute("aria-hidden", "true");
+          icon.setAttribute("class", "ico" + (className ? " " + className : ""));
+          icon.innerHTML = path;
+          return icon;
         }
-        function ymd(d) {
-          var m = d.getMonth() + 1,
-            x = d.getDate();
+        function ymd(date) {
+          var month = date.getMonth() + 1,
+            day = date.getDate();
           return (
-            d.getFullYear() +
+            date.getFullYear() +
             "-" +
-            (m < 10 ? "0" : "") +
-            m +
+            (month < 10 ? "0" : "") +
+            month +
             "-" +
-            (x < 10 ? "0" : "") +
-            x
+            (day < 10 ? "0" : "") +
+            day
           );
         }
         function today() {
           return ymd(new Date());
         }
-        function shift(s, n) {
-          var p = s.split("-");
-          return ymd(new Date(+p[0], +p[1] - 1, +p[2] + n));
+        function shift(dateText, dayCount) {
+          var parts = dateText.split("-");
+          return ymd(new Date(+parts[0], +parts[1] - 1, +parts[2] + dayCount));
         }
-        function parse(s) {
-          var p = s.split("-");
-          return new Date(+p[0], +p[1] - 1, +p[2]);
+        function parse(dateText) {
+          var parts = dateText.split("-");
+          return new Date(+parts[0], +parts[1] - 1, +parts[2]);
         }
-        function shortDate(s) {
-          return parse(s).toLocaleDateString(undefined, {
+        function shortDate(dateText) {
+          return parse(dateText).toLocaleDateString(undefined, {
             day: "numeric",
             month: "short",
             year: "numeric",
           });
         }
-        function dlabel(s) {
-          var l = parse(s).toLocaleDateString(undefined, {
+        function dlabel(dateText) {
+          var formatted = parse(dateText).toLocaleDateString(undefined, {
             weekday: "long",
             day: "numeric",
             month: "short",
             year: "numeric",
           });
-          return s === today()
-            ? "Today, " + l
-            : s === shift(today(), -1)
-            ? "Yesterday, " + l
-            : l;
+          return dateText === today()
+            ? "Today, " + formatted
+            : dateText === shift(today(), -1)
+            ? "Yesterday, " + formatted
+            : formatted;
         }
         function uid() {
           return (
@@ -1350,52 +1682,52 @@
         }
         var flagById = function (id) {
           return (
-            FLAGS.filter(function (f) {
-              return f.id === id;
+            FLAGS.filter(function (flag) {
+              return flag.id === id;
             })[0] || FLAGS[0]
           );
         };
-        function dot(c) {
-          var d = el("span", "dot");
-          d.style.setProperty("--c", c);
-          return d;
+        function dot(color) {
+          var mark = el("span", "dot");
+          mark.style.setProperty("--c", color);
+          return mark;
         }
 
         /* ---------- storage ---------- */
         function openDB() {
-          return new Promise(function (res, rej) {
+          return new Promise(function (resolve, reject) {
             try {
-              var r = indexedDB.open("daily-tasks", 2);
-              r.onupgradeneeded = function () {
-                var d = r.result;
-                ["tasks", "notes"].forEach(function (n) {
-                  if (!d.objectStoreNames.contains(n))
-                    d.createObjectStore(n, { keyPath: "id" });
+              var request = indexedDB.open("daily-tasks", 2);
+              request.onupgradeneeded = function () {
+                var database = request.result;
+                ["tasks", "notes"].forEach(function (storeName) {
+                  if (!database.objectStoreNames.contains(storeName))
+                    database.createObjectStore(storeName, { keyPath: "id" });
                 });
               };
-              r.onsuccess = function () {
-                res(r.result);
+              request.onsuccess = function () {
+                resolve(request.result);
               };
-              r.onerror = function () {
-                rej(r.error);
+              request.onerror = function () {
+                reject(request.error);
               };
-            } catch (e) {
-              rej(e);
+            } catch (error) {
+              reject(error);
             }
           });
         }
         function idbAll(database, store) {
-          return new Promise(function (res) {
+          return new Promise(function (resolve) {
             try {
-              var r = database.transaction(store).objectStore(store).getAll();
-              r.onsuccess = function () {
-                res(r.result || []);
+              var request = database.transaction(store).objectStore(store).getAll();
+              request.onsuccess = function () {
+                resolve(request.result || []);
               };
-              r.onerror = function () {
-                res([]);
+              request.onerror = function () {
+                resolve([]);
               };
-            } catch (e) {
-              res([]);
+            } catch (error) {
+              resolve([]);
             }
           });
         }
@@ -1406,14 +1738,14 @@
           $("foot").textContent =
             msg || "Could not sync. Check your connection and try again.";
         }
-        var put = function (store, o) {
-          if (!user || !fs || !o || !o.id) return Promise.resolve();
-          var key = String(o.id);
-          pending[store][key] = o;
+        var put = function (store, record) {
+          if (!user || !fs || !record || !record.id) return Promise.resolve();
+          var key = String(record.id);
+          pending[store][key] = record;
           delete dropped[store][key];
           return userCol(store)
             .doc(key)
-            .set(o)
+            .set(record)
             .catch(function (err) {
               syncNote(loadError(err));
             });
@@ -1436,8 +1768,8 @@
         };
         function mergeSnap(name, list) {
           var byId = {};
-          list.forEach(function (x) {
-            byId[String(x.id)] = x;
+          list.forEach(function (record) {
+            byId[String(record.id)] = record;
           });
           Object.keys(dropped[name]).forEach(function (id) {
             delete byId[id];
@@ -1454,8 +1786,8 @@
           });
         }
         function stopListen() {
-          stops.forEach(function (u) {
-            u();
+          stops.forEach(function (stop) {
+            stop();
           });
           stops = [];
           seen = { tasks: false, notes: false };
@@ -1463,10 +1795,10 @@
         function takeSnap(name, snap) {
           var list = [];
           cloudCount[name] = snap.size;
-          snap.forEach(function (d) {
-            var x = d.data() || {};
-            if (!x.id) x.id = d.id;
-            list.push(x);
+          snap.forEach(function (docSnap) {
+            var record = docSnap.data() || {};
+            if (!record.id) record.id = docSnap.id;
+            list.push(record);
           });
           list = mergeSnap(name, list);
           if (name === "tasks") tasks = migrate(list, "tasks");
@@ -1558,11 +1890,11 @@
                 idbAll(database, "notes"),
               ]).then(function (pair) {
                 var docs = [];
-                pair[0].forEach(function (t) {
-                  if (t && t.id) docs.push(["tasks", t]);
+                pair[0].forEach(function (task) {
+                  if (task && task.id) docs.push(["tasks", task]);
                 });
-                pair[1].forEach(function (n) {
-                  if (n && n.id) docs.push(["notes", n]);
+                pair[1].forEach(function (note) {
+                  if (note && note.id) docs.push(["notes", note]);
                 });
                 var chain = Promise.resolve();
                 for (var i = 0; i < docs.length; i += 400) {
@@ -1599,92 +1931,112 @@
         }
 
         /* ---------- text helpers ---------- */
-        function iconBtn(name, title, fn) {
-          var b = el("button", "ib");
-          b.type = "button";
-          b.title = title;
-          b.setAttribute("aria-label", title);
-          b.innerHTML =
+        function iconBtn(name, title, onClick) {
+          var button = el("button", "ib");
+          button.type = "button";
+          button.title = title;
+          button.setAttribute("aria-label", title);
+          button.innerHTML =
             '<svg viewBox="0 0 24 24" aria-hidden="true">' +
             IC[name] +
             "</svg>";
-          b.onclick = fn;
-          return b;
+          button.onclick = onClick;
+          return button;
         }
-        function renderText(box, txt) {
-          var cur = null,
-            curType = null;
-          txt.split("\n").forEach(function (l) {
-            var m = l.match(/^\s*(?:([-*•])|(\d+)[.)])\s+(.*)$/);
-            if (m) {
-              var type = m[1] ? "ul" : "ol";
-              if (curType !== type) {
-                cur = el(type);
-                box.appendChild(cur);
-                curType = type;
+        function renderText(box, text) {
+          var currentList = null,
+            currentType = null;
+          String(text || "").split("\n").forEach(function (line) {
+            var match = line.match(/^\s*(?:([-*•])|(\d+)[.)])\s+(.*)$/);
+            if (match) {
+              var type = match[1] ? "ul" : "ol";
+              if (currentType !== type) {
+                currentList = el(type);
+                box.appendChild(currentList);
+                currentType = type;
               }
-              cur.appendChild(el("li", null, m[3]));
-            } else {
-              cur = null;
-              curType = null;
-              if (l.trim()) box.appendChild(el("p", null, l));
+              currentList.appendChild(el("li", null, match[3]));
+              return;
             }
+            currentList = null;
+            currentType = null;
+            if (!line.trim()) {
+              box.appendChild(el("p", "blank", "\u00a0"));
+              return;
+            }
+            box.appendChild(el("p", null, line));
           });
         }
-        function snippet(s) {
-          var flat = s
+        function snippet(text) {
+          var flat = String(text || "")
             .split("\n")
-            .map(function (l) {
-              return l.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim();
+            .map(function (line) {
+              return line.replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "").trim();
             })
             .filter(Boolean)
             .join(" ");
-          var m = flat.match(/^(.+?[.!?])(\s|$)/);
-          return m ? m[1] : flat;
+          var sentence = flat.match(/^(.+?[.!?])(\s|$)/);
+          return sentence ? sentence[1] : flat;
         }
-        function listKeys(ta, submit) {
-          ta.addEventListener("keydown", function (e) {
-            if (e.key !== "Enter" || e.shiftKey) return;
-            if (e.ctrlKey || e.metaKey) {
+        function taskTitle(text) {
+          var firstLine = String(text || "")
+            .split("\n")[0]
+            .replace(/^\s*(?:[-*•]|\d+[.)])\s+/, "")
+            .trim();
+          var words = firstLine.split(/\s+/).filter(Boolean);
+          if (words.length > 10) return words.slice(0, 10).join(" ") + "…";
+          return words.join(" ");
+        }
+        function listKeys(textarea, submit) {
+          textarea.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter" || event.shiftKey) return;
+            if (event.ctrlKey || event.metaKey) {
               if (submit) {
-                e.preventDefault();
+                event.preventDefault();
                 submit();
               }
               return;
             }
-            var v = ta.value,
-              s = ta.selectionStart,
-              ls = v.lastIndexOf("\n", s - 1) + 1;
-            var m = v.slice(ls, s).match(/^(\s*)(?:([-*•])|(\d+)[.)])\s(.*)$/);
-            if (!m) return;
-            e.preventDefault();
-            if (!m[4].trim()) {
-              ta.value = v.slice(0, ls) + v.slice(s);
-              ta.selectionStart = ta.selectionEnd = ls;
+            var value = textarea.value,
+              cursor = textarea.selectionStart,
+              lineStart = value.lastIndexOf("\n", cursor - 1) + 1;
+            var match = value
+              .slice(lineStart, cursor)
+              .match(/^(\s*)(?:([-*•])|(\d+)[.)])\s(.*)$/);
+            if (!match) return;
+            event.preventDefault();
+            if (!match[4].trim()) {
+              textarea.value = value.slice(0, lineStart) + value.slice(cursor);
+              textarea.selectionStart = textarea.selectionEnd = lineStart;
               return;
             }
-            var pre = m[1] + (m[2] ? m[2] + " " : +m[3] + 1 + ". ");
-            ta.value = v.slice(0, s) + "\n" + pre + v.slice(ta.selectionEnd);
-            ta.selectionStart = ta.selectionEnd = s + 1 + pre.length;
+            var prefix = match[1] + (match[2] ? match[2] + " " : +match[3] + 1 + ". ");
+            textarea.value =
+              value.slice(0, cursor) + "\n" + prefix + value.slice(textarea.selectionEnd);
+            textarea.selectionStart = textarea.selectionEnd = cursor + 1 + prefix.length;
           });
         }
-        function toggleList(ta, kind) {
-          var v = ta.value,
-            s = ta.selectionStart,
-            ls = v.lastIndexOf("\n", s - 1) + 1,
-            end = v.indexOf("\n", ls);
-          if (end < 0) end = v.length;
-          var line = v.slice(ls, end),
-            m = line.match(/^\s*(?:[-*•]|\d+[.)])\s/);
-          if (m) {
-            ta.value = v.slice(0, ls) + line.slice(m[0].length) + v.slice(end);
-            ta.selectionStart = ta.selectionEnd = Math.max(ls, s - m[0].length);
+        function toggleList(textarea, kind) {
+          var value = textarea.value,
+            cursor = textarea.selectionStart,
+            lineStart = value.lastIndexOf("\n", cursor - 1) + 1,
+            lineEnd = value.indexOf("\n", lineStart);
+          if (lineEnd < 0) lineEnd = value.length;
+          var line = value.slice(lineStart, lineEnd),
+            marker = line.match(/^\s*(?:[-*•]|\d+[.)])\s/);
+          if (marker) {
+            textarea.value =
+              value.slice(0, lineStart) + line.slice(marker[0].length) + value.slice(lineEnd);
+            textarea.selectionStart = textarea.selectionEnd = Math.max(
+              lineStart,
+              cursor - marker[0].length
+            );
           } else {
-            var pre = kind === "ul" ? "- " : "1. ";
-            ta.value = v.slice(0, ls) + pre + v.slice(ls);
-            ta.selectionStart = ta.selectionEnd = s + pre.length;
+            var prefix = kind === "ul" ? "- " : "1. ";
+            textarea.value = value.slice(0, lineStart) + prefix + value.slice(lineStart);
+            textarea.selectionStart = textarea.selectionEnd = cursor + prefix.length;
           }
-          ta.focus();
+          textarea.focus();
         }
 
         /* ---------- dropdown ---------- */
@@ -1696,242 +2048,250 @@
           }
         }
         document.addEventListener("click", closeMenu);
-        document.addEventListener("keydown", function (e) {
-          if (e.key === "Escape") closeMenu();
-        });
-        window.addEventListener("resize", closeMenu);
-        function dd(o) {
-          var b = el("button", "dd");
-          b.type = "button";
-          b.setAttribute("aria-haspopup", "listbox");
-          function paint() {
-            var cur =
-              o.items.filter(function (i) {
-                return i.id === o.get();
-              })[0] || o.items[0];
-            b.textContent = "";
-            if (cur.dot) b.appendChild(dot(cur.dot));
-            else if (cur.ic || o.ic) b.appendChild(svg(cur.ic || o.ic));
-            b.appendChild(document.createTextNode(cur.l));
-            b.appendChild(svg(IC.chev, "chv"));
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+            closeMenu();
+            closeDrawer();
+            closeProfile();
           }
-          b.onclick = function (e) {
-            e.stopPropagation();
-            var same = openMenu && openMenu._for === b;
+        });
+        window.addEventListener("resize", function () {
+          closeMenu();
+          if (window.innerWidth > 800) closeDrawer();
+        });
+        function dd(options) {
+          var button = el("button", "dd");
+          button.type = "button";
+          button.setAttribute("aria-haspopup", "listbox");
+          function paint() {
+            var current =
+              options.items.filter(function (item) {
+                return item.id === options.get();
+              })[0] || options.items[0];
+            button.textContent = "";
+            if (current.dot) button.appendChild(dot(current.dot));
+            else if (current.ic || options.ic)
+              button.appendChild(svg(current.ic || options.ic));
+            button.appendChild(document.createTextNode(current.label));
+            button.appendChild(svg(IC.chev, "chv"));
+          }
+          button.onclick = function (event) {
+            event.stopPropagation();
+            var same = openMenu && openMenu._for === button;
             closeMenu();
             if (same) return;
-            var m = el("div", "menu");
-            m.setAttribute("role", "listbox");
-            m._for = b;
-            o.items.forEach(function (i) {
-              var it = el("button");
-              it.type = "button";
-              it.setAttribute("role", "option");
-              it.setAttribute("aria-selected", String(i.id === o.get()));
-              if (i.dot) it.appendChild(dot(i.dot));
-              else if (i.ic) it.appendChild(svg(i.ic));
-              it.appendChild(document.createTextNode(i.l));
-              it.onclick = function (ev) {
-                ev.stopPropagation();
+            var menu = el("div", "menu");
+            menu.setAttribute("role", "listbox");
+            menu._for = button;
+            options.items.forEach(function (item) {
+              var option = el("button");
+              option.type = "button";
+              option.setAttribute("role", "option");
+              option.setAttribute("aria-selected", String(item.id === options.get()));
+              if (item.dot) option.appendChild(dot(item.dot));
+              else if (item.ic) option.appendChild(svg(item.ic));
+              option.appendChild(document.createTextNode(item.label));
+              option.onclick = function (clickEvent) {
+                clickEvent.stopPropagation();
                 closeMenu();
-                o.set(i.id);
+                options.set(item.id);
                 paint();
               };
-              m.appendChild(it);
+              menu.appendChild(option);
             });
-            document.body.appendChild(m);
-            var r = b.getBoundingClientRect();
-            m.style.left =
-              Math.max(8, Math.min(r.left, innerWidth - m.offsetWidth - 8)) +
+            document.body.appendChild(menu);
+            var rect = button.getBoundingClientRect();
+            menu.style.left =
+              Math.max(8, Math.min(rect.left, innerWidth - menu.offsetWidth - 8)) +
               "px";
-            m.style.top =
-              (r.bottom + 4 + m.offsetHeight > innerHeight
-                ? r.top - m.offsetHeight - 4
-                : r.bottom + 4) + "px";
-            openMenu = m;
+            menu.style.top =
+              (rect.bottom + 4 + menu.offsetHeight > innerHeight
+                ? rect.top - menu.offsetHeight - 4
+                : rect.bottom + 4) + "px";
+            openMenu = menu;
           };
-          b.refresh = paint;
+          button.refresh = paint;
           paint();
-          return b;
+          return button;
         }
 
         /* ---------- shared list pieces ---------- */
-        function inRange(d, f, t) {
-          return (!f || d >= f) && (!t || d <= t);
+        function inRange(dateText, fromDate, toDate) {
+          return (!fromDate || dateText >= fromDate) && (!toDate || dateText <= toDate);
         }
         function groups(list, sort) {
-          var g = {};
-          list.forEach(function (x) {
-            (g[x.date] = g[x.date] || []).push(x);
+          var byDate = {};
+          list.forEach(function (item) {
+            (byDate[item.date] = byDate[item.date] || []).push(item);
           });
-          var ds = Object.keys(g).sort();
-          if (sort === "desc") ds.reverse();
-          return ds.map(function (d) {
-            g[d].sort(function (a, b) {
+          var dates = Object.keys(byDate).sort();
+          if (sort === "desc") dates.reverse();
+          return dates.map(function (dateText) {
+            byDate[dateText].sort(function (first, second) {
               return sort === "desc"
-                ? b.created - a.created
-                : a.created - b.created;
+                ? second.created - first.created
+                : first.created - second.created;
             });
-            return { date: d, items: g[d] };
+            return { date: dateText, items: byDate[dateText] };
           });
         }
         function chev() {
-          var c = el("span", "chev");
-          c.appendChild(svg(IC.chev));
-          return c;
+          var icon = el("span", "chev");
+          icon.appendChild(svg(IC.chev));
+          return icon;
         }
         function header(open, onToggle) {
-          var h = el("div", "rh");
-          h.tabIndex = 0;
-          h.setAttribute("role", "button");
-          h.setAttribute("aria-expanded", String(!!open));
-          h.onclick = onToggle;
-          h.onkeydown = function (e) {
-            if ((e.key === "Enter" || e.key === " ") && e.target === h) {
-              e.preventDefault();
+          var rowHeader = el("div", "rh");
+          rowHeader.tabIndex = 0;
+          rowHeader.setAttribute("role", "button");
+          rowHeader.setAttribute("aria-expanded", String(!!open));
+          rowHeader.onclick = onToggle;
+          rowHeader.onkeydown = function (event) {
+            if ((event.key === "Enter" || event.key === " ") && event.target === rowHeader) {
+              event.preventDefault();
               onToggle();
             }
           };
-          return h;
+          return rowHeader;
         }
-        function emptyState(msg) {
-          var d = el("div", "empty"),
-            c = el("div", "circ");
-          c.appendChild(svg(IC.inbox));
-          d.appendChild(c);
-          d.appendChild(el("div", null, msg));
-          return d;
+        function emptyState(message) {
+          var box = el("div", "empty"),
+            circle = el("div", "circ");
+          circle.appendChild(svg(IC.inbox));
+          box.appendChild(circle);
+          box.appendChild(el("div", null, message));
+          return box;
         }
         function editor(row, item, store, withTitle, done) {
           row.textContent = "";
-          var w = el("div", "rb");
-          w.style.flexWrap = "wrap";
-          var ti = null;
+          var wrap = el("div", "rb");
+          wrap.style.flexWrap = "wrap";
+          var titleInput = null;
           if (withTitle) {
-            ti = el("input");
-            ti.type = "text";
-            ti.value = item.title;
-            ti.maxLength = 120;
-            ti.style.cssText = "width:100%;font-weight:600";
-            w.appendChild(ti);
+            titleInput = el("input");
+            titleInput.type = "text";
+            titleInput.value = item.title;
+            titleInput.maxLength = 120;
+            titleInput.style.cssText = "width:100%;font-weight:600";
+            wrap.appendChild(titleInput);
           }
-          var key = withTitle ? "body" : "text";
-          var ta = el("textarea");
-          ta.value = item[key] || "";
-          ta.rows = Math.min(12, (item[key] || "").split("\n").length + 2);
-          ta.maxLength = 10000;
-          var ok = function () {
-            var v = ta.value.trim(),
-              t = ti ? ti.value.trim() : "x";
-            if (t && (v || withTitle)) {
-              if (ti) item.title = t;
-              item[key] = v;
+          var field = withTitle ? "body" : "text";
+          var textarea = el("textarea");
+          textarea.value = item[field] || "";
+          textarea.rows = Math.min(12, (item[field] || "").split("\n").length + 2);
+          textarea.maxLength = 10000;
+          var save = function () {
+            var body = textarea.value.trim(),
+              title = titleInput ? titleInput.value.trim() : "x";
+            if (title && (body || withTitle)) {
+              if (titleInput) item.title = title;
+              item[field] = body;
               item.updated = Date.now();
               put(store, item);
             }
             done();
           };
-          listKeys(ta, ok);
-          var a = el("div", "actions");
-          a.style.marginLeft = "auto";
-          a.appendChild(iconBtn("close", "Cancel", done));
-          a.appendChild(iconBtn("done", "Save changes", ok));
-          w.appendChild(ta);
-          w.appendChild(a);
-          row.appendChild(w);
-          (ti || ta).focus();
+          listKeys(textarea, save);
+          var actions = el("div", "actions");
+          actions.style.marginLeft = "auto";
+          actions.appendChild(iconBtn("close", "Cancel", done));
+          actions.appendChild(iconBtn("done", "Save changes", save));
+          wrap.appendChild(textarea);
+          wrap.appendChild(actions);
+          row.appendChild(wrap);
+          (titleInput || textarea).focus();
         }
-        function range(p) {
-          var t = today();
-          return p === "today"
-            ? [t, t]
-            : p === "7"
-            ? [shift(t, -6), t]
-            : p === "30"
-            ? [shift(t, -29), t]
+        function range(preset) {
+          var current = today();
+          return preset === "today"
+            ? [current, current]
+            : preset === "7"
+            ? [shift(current, -6), current]
+            : preset === "30"
+            ? [shift(current, -29), current]
             : ["", ""];
         }
-        function buildBar(box, S, rerender, pre) {
-          (pre || []).forEach(function (e) {
-            box.appendChild(e);
+        function buildBar(box, state, rerender, leading) {
+          (leading || []).forEach(function (control) {
+            box.appendChild(control);
           });
-          var r0 = range(S.preset);
-          S.from = r0[0];
-          S.to = r0[1];
-          var f = el("input"),
-            t = el("input");
-          f.type = t.type = "date";
-          f.setAttribute("aria-label", "From date");
-          t.setAttribute("aria-label", "To date");
-          f.value = S.from;
-          t.value = S.to;
-          var pr = dd({
+          var initialRange = range(state.preset);
+          state.from = initialRange[0];
+          state.to = initialRange[1];
+          var fromInput = el("input"),
+            toInput = el("input");
+          fromInput.type = toInput.type = "date";
+          fromInput.setAttribute("aria-label", "From date");
+          toInput.setAttribute("aria-label", "To date");
+          fromInput.value = state.from;
+          toInput.value = state.to;
+          var presetMenu = dd({
             ic: IC.cal,
             get: function () {
-              return S.preset;
+              return state.preset;
             },
-            set: function (v) {
-              S.preset = v;
-              if (v !== "custom") {
-                var r = range(v);
-                S.from = r[0];
-                S.to = r[1];
-                f.value = r[0];
-                t.value = r[1];
+            set: function (value) {
+              state.preset = value;
+              if (value !== "custom") {
+                var nextRange = range(value);
+                state.from = nextRange[0];
+                state.to = nextRange[1];
+                fromInput.value = nextRange[0];
+                toInput.value = nextRange[1];
               }
               rerender();
             },
             items: [
-              { id: "all", l: "All time" },
-              { id: "today", l: "Today" },
-              { id: "7", l: "Last 7 days" },
-              { id: "30", l: "Last 30 days" },
-              { id: "custom", l: "Custom range" },
+              { id: "all", label: "All time" },
+              { id: "today", label: "Today" },
+              { id: "7", label: "Last 7 days" },
+              { id: "30", label: "Last 30 days" },
+              { id: "custom", label: "Custom range" },
             ],
           });
-          f.onchange = t.onchange = function () {
-            S.from = f.value;
-            S.to = t.value;
-            S.preset = "custom";
-            pr.refresh();
+          fromInput.onchange = toInput.onchange = function () {
+            state.from = fromInput.value;
+            state.to = toInput.value;
+            state.preset = "custom";
+            presetMenu.refresh();
             rerender();
           };
-          var rng = el("div", "rng");
-          rng.appendChild(f);
-          rng.appendChild(el("span", "muted", "to"));
-          rng.appendChild(t);
-          rng.appendChild(svg(IC.cal));
-          var so = dd({
+          var rangeBox = el("div", "rng");
+          rangeBox.appendChild(fromInput);
+          rangeBox.appendChild(el("span", "muted", "to"));
+          rangeBox.appendChild(toInput);
+          rangeBox.appendChild(svg(IC.cal));
+          var sortMenu = dd({
             ic: IC.sort,
             get: function () {
-              return S.sort;
+              return state.sort;
             },
-            set: function (v) {
-              S.sort = v;
+            set: function (value) {
+              state.sort = value;
               rerender();
             },
             items: [
-              { id: "desc", l: "Most recent" },
-              { id: "asc", l: "Oldest first" },
+              { id: "desc", label: "Most recent" },
+              { id: "asc", label: "Oldest first" },
             ],
           });
-          S.sync = function () {
-            f.value = S.from;
-            t.value = S.to;
-            pr.refresh();
+          state.sync = function () {
+            fromInput.value = state.from;
+            toInput.value = state.to;
+            presetMenu.refresh();
           };
-          box.appendChild(pr);
-          box.appendChild(rng);
-          box.appendChild(so);
+          box.appendChild(presetMenu);
+          box.appendChild(rangeBox);
+          box.appendChild(sortMenu);
         }
 
         /* ---------- tasks ---------- */
-        function listLoader(msg) {
-          var d = el("div", "gate gate-list");
-          d.setAttribute("role", "status");
-          d.appendChild(el("div", "spin"));
-          d.appendChild(el("p", null, msg));
-          return d;
+        function listLoader(message) {
+          var box = el("div", "gate gate-list");
+          box.setAttribute("role", "status");
+          box.appendChild(el("div", "spin"));
+          box.appendChild(el("p", null, message));
+          return box;
         }
         function renderTasks() {
           if (!user) return;
@@ -1942,34 +2302,34 @@
             box.appendChild(listLoader("Loading tasks…"));
             return;
           }
-          var q = T.q.trim().toLowerCase();
-          var base = tasks.filter(function (t) {
-            var tag = flagById(t.flag).l.toLowerCase();
+          var query = T.q.trim().toLowerCase();
+          var base = tasks.filter(function (task) {
+            var tag = flagById(task.flag).label.toLowerCase();
             return (
-              inRange(t.date, T.from, T.to) &&
-              (T.flag === "all" || t.flag === T.flag) &&
-              (!q ||
-                (t.text || "").toLowerCase().indexOf(q) >= 0 ||
-                tag.indexOf(q) >= 0)
+              inRange(task.date, T.from, T.to) &&
+              (T.flag === "all" || task.flag === T.flag) &&
+              (!query ||
+                (task.text || "").toLowerCase().indexOf(query) >= 0 ||
+                tag.indexOf(query) >= 0)
             );
           });
-          var sb = $("stats");
-          sb.textContent = "";
-          STAT.forEach(function (s) {
+          var statsBox = $("stats");
+          statsBox.textContent = "";
+          STAT.forEach(function (status) {
             stat(
-              sb,
-              s.id,
-              s.l,
-              s.ic,
-              base.filter(function (t) {
-                return t.status === s.id;
+              statsBox,
+              status.id,
+              status.label,
+              status.ic,
+              base.filter(function (task) {
+                return task.status === status.id;
               }).length
             );
           });
-          sb.appendChild(el("span", "vr"));
-          stat(sb, "all", "Total", null, base.length);
-          var list = base.filter(function (t) {
-            return T.status === "all" || t.status === T.status;
+          statsBox.appendChild(el("span", "vr"));
+          stat(statsBox, "all", "Total", null, base.length);
+          var list = base.filter(function (task) {
+            return T.status === "all" || task.status === T.status;
           });
           var box = $("tlist");
           box.textContent = "";
@@ -1989,123 +2349,123 @@
             return;
           }
           var panel = el("div", "panel");
-          groups(list, T.sort).forEach(function (g) {
-            var sec = el("section", "group"),
-              h = el("h3");
-            h.appendChild(el("span", null, dlabel(g.date)));
-            h.appendChild(
+          groups(list, T.sort).forEach(function (group) {
+            var section = el("section", "group"),
+              heading = el("h3");
+            heading.appendChild(el("span", null, dlabel(group.date)));
+            heading.appendChild(
               el(
                 "span",
                 null,
-                g.items.length + (g.items.length === 1 ? " task" : " tasks")
+                group.items.length + (group.items.length === 1 ? " task" : " tasks")
               )
             );
-            sec.appendChild(h);
-            g.items.forEach(function (t) {
-              sec.appendChild(taskRow(t));
+            section.appendChild(heading);
+            group.items.forEach(function (task) {
+              section.appendChild(taskRow(task));
             });
-            panel.appendChild(sec);
+            panel.appendChild(section);
           });
           box.appendChild(panel);
         }
-        function stat(box, id, label, ic, n) {
-          var b = el("button", "stat");
-          b.type = "button";
-          b.setAttribute("aria-pressed", String(T.status === id));
-          if (ic) b.appendChild(svg(ic));
-          b.appendChild(document.createTextNode(label));
-          b.appendChild(el("span", "n", n));
-          b.onclick = function () {
+        function stat(box, id, label, iconPath, count) {
+          var button = el("button", "stat");
+          button.type = "button";
+          button.setAttribute("aria-pressed", String(T.status === id));
+          if (iconPath) button.appendChild(svg(iconPath));
+          button.appendChild(document.createTextNode(label));
+          button.appendChild(el("span", "n", count));
+          button.onclick = function () {
             T.status = id;
             renderTasks();
           };
-          box.appendChild(b);
+          box.appendChild(button);
         }
-        function taskRow(t) {
-          var open = !!T.open[t.id],
-            r = el("div", "row" + (open ? " open" : ""));
-          var h = header(open, function () {
-            T.open[t.id] = !open;
+        function taskRow(task) {
+          var open = !!T.open[task.id],
+            row = el("div", "row" + (open ? " open" : ""));
+          var rowHeader = header(open, function () {
+            T.open[task.id] = !open;
             renderTasks();
           });
-          var sel = el("select", "pill st-" + t.status);
-          sel.title = "Change status";
-          sel.setAttribute("aria-label", "Status");
-          STAT.forEach(function (s) {
-            var o = el("option", null, s.l);
-            o.value = s.id;
-            if (s.id === t.status) o.selected = true;
-            sel.appendChild(o);
+          var statusSelect = el("select", "pill st-" + task.status);
+          statusSelect.title = "Change status";
+          statusSelect.setAttribute("aria-label", "Status");
+          STAT.forEach(function (status) {
+            var option = el("option", null, status.label);
+            option.value = status.id;
+            if (status.id === task.status) option.selected = true;
+            statusSelect.appendChild(option);
           });
-          sel.onclick = function (e) {
-            e.stopPropagation();
+          statusSelect.onclick = function (event) {
+            event.stopPropagation();
           };
-          sel.onchange = function () {
-            t.status = sel.value;
-            t.updated = Date.now();
-            put("tasks", t);
+          statusSelect.onchange = function () {
+            task.status = statusSelect.value;
+            task.updated = Date.now();
+            put("tasks", task);
             renderTasks();
           };
-          var f = flagById(t.flag),
-            fp = el("span", "fpill"),
+          var flag = flagById(task.flag),
+            flagPill = el("span", "fpill"),
             meta = el("span", "meta"),
-            tag = el("select");
-          tag.title = "Change tag";
-          tag.setAttribute("aria-label", "Tag");
+            tagSelect = el("select");
+          tagSelect.title = "Change tag";
+          tagSelect.setAttribute("aria-label", "Tag");
           FLAGS.forEach(function (item) {
-            var o = el("option", null, item.l);
-            o.value = item.id;
-            if (item.id === f.id) o.selected = true;
-            tag.appendChild(o);
+            var option = el("option", null, item.label);
+            option.value = item.id;
+            if (item.id === flag.id) option.selected = true;
+            tagSelect.appendChild(option);
           });
-          tag.onclick = function (e) {
-            e.stopPropagation();
+          tagSelect.onclick = function (event) {
+            event.stopPropagation();
           };
-          tag.onchange = function () {
-            t.flag = tag.value;
-            t.updated = Date.now();
-            put("tasks", t);
+          tagSelect.onchange = function () {
+            task.flag = tagSelect.value;
+            task.updated = Date.now();
+            put("tasks", task);
             renderTasks();
           };
-          fp.appendChild(dot(f.dot));
-          fp.appendChild(tag);
-          meta.appendChild(sel);
-          meta.appendChild(fp);
-          h.appendChild(el("span", "lead", snippet(t.text)));
-          h.appendChild(meta);
-          h.appendChild(chev());
-          r.appendChild(h);
+          flagPill.appendChild(dot(flag.dot));
+          flagPill.appendChild(tagSelect);
+          meta.appendChild(statusSelect);
+          meta.appendChild(flagPill);
+          rowHeader.appendChild(el("span", "lead", taskTitle(task.text)));
+          rowHeader.appendChild(meta);
+          rowHeader.appendChild(chev());
+          row.appendChild(rowHeader);
           if (open) {
-            var b = el("div", "rb"),
-              txt = el("div", "txt"),
-              act = el("div", "actions");
-            renderText(txt, t.text);
-            if (t.date !== today())
-              act.appendChild(
+            var body = el("div", "rb"),
+              textBox = el("div", "txt"),
+              actions = el("div", "actions");
+            renderText(textBox, task.text);
+            if (task.date !== today())
+              actions.appendChild(
                 iconBtn("cal", "Move to today", function () {
-                  t.date = today();
-                  t.updated = Date.now();
-                  put("tasks", t);
+                  task.date = today();
+                  task.updated = Date.now();
+                  put("tasks", task);
                   renderTasks();
                 })
               );
-            act.appendChild(
+            actions.appendChild(
               iconBtn("edit", "Edit task", function () {
-                editor(r, t, "tasks", false, renderTasks);
+                editor(row, task, "tasks", false, renderTasks);
               })
             );
-            act.appendChild(
+            actions.appendChild(
               iconBtn("del", "Delete task", function () {
-                del("tasks", t.id);
-                drop(tasks, t.id);
+                del("tasks", task.id);
+                drop(tasks, task.id);
                 renderTasks();
               })
             );
-            b.appendChild(txt);
-            b.appendChild(act);
-            r.appendChild(b);
+            body.appendChild(textBox);
+            body.appendChild(actions);
+            row.appendChild(body);
           }
-          return r;
+          return row;
         }
 
         /* ---------- notes ---------- */
@@ -2117,11 +2477,11 @@
             box.appendChild(listLoader("Loading notes…"));
             return;
           }
-          var q = N.q.trim().toLowerCase();
-          var list = notes.filter(function (n) {
+          var query = N.q.trim().toLowerCase();
+          var list = notes.filter(function (note) {
             return (
-              inRange(n.date, N.from, N.to) &&
-              (!q || (n.title + " " + n.body).toLowerCase().indexOf(q) >= 0)
+              inRange(note.date, N.from, N.to) &&
+              (!query || (note.title + " " + note.body).toLowerCase().indexOf(query) >= 0)
             );
           });
           box.textContent = "";
@@ -2141,91 +2501,105 @@
             return;
           }
           var panel = el("div", "panel");
-          groups(list, N.sort).forEach(function (g) {
-            var sec = el("section", "group"),
-              h = el("h3");
-            h.appendChild(el("span", null, dlabel(g.date)));
-            h.appendChild(
+          groups(list, N.sort).forEach(function (group) {
+            var section = el("section", "group"),
+              heading = el("h3");
+            heading.appendChild(el("span", null, dlabel(group.date)));
+            heading.appendChild(
               el(
                 "span",
                 null,
-                g.items.length + (g.items.length === 1 ? " note" : " notes")
+                group.items.length + (group.items.length === 1 ? " note" : " notes")
               )
             );
-            sec.appendChild(h);
-            g.items.forEach(function (n) {
-              sec.appendChild(noteRow(n));
+            section.appendChild(heading);
+            group.items.forEach(function (note) {
+              section.appendChild(noteRow(note));
             });
-            panel.appendChild(sec);
+            panel.appendChild(section);
           });
           box.appendChild(panel);
         }
-        function noteRow(n) {
-          var open = !!N.open[n.id],
-            r = el("div", "row" + (open ? " open" : ""));
-          var h = header(open, function () {
-            N.open[n.id] = !open;
+        function noteRow(note) {
+          var open = !!N.open[note.id],
+            row = el("div", "row" + (open ? " open" : ""));
+          var rowHeader = header(open, function () {
+            N.open[note.id] = !open;
             renderNotes();
           });
-          h.appendChild(el("span", "nt", n.title));
-          h.appendChild(el("span", "snip", snippet(n.body || "")));
-          h.appendChild(el("span", "when", shortDate(n.date)));
-          h.appendChild(chev());
-          r.appendChild(h);
+          rowHeader.appendChild(el("span", "nt", note.title));
+          rowHeader.appendChild(el("span", "snip", snippet(note.body || "")));
+          rowHeader.appendChild(el("span", "when", shortDate(note.date)));
+          rowHeader.appendChild(chev());
+          row.appendChild(rowHeader);
           if (open) {
-            var b = el("div", "rb"),
-              txt = el("div", "txt"),
-              act = el("div", "actions");
-            renderText(txt, n.body || "");
-            act.appendChild(
+            var body = el("div", "rb"),
+              textBox = el("div", "txt"),
+              actions = el("div", "actions");
+            renderText(textBox, note.body || "");
+            actions.appendChild(
               iconBtn("edit", "Edit note", function () {
-                editor(r, n, "notes", true, renderNotes);
+                editor(row, note, "notes", true, renderNotes);
               })
             );
-            act.appendChild(
+            actions.appendChild(
               iconBtn("del", "Delete note", function () {
-                del("notes", n.id);
-                drop(notes, n.id);
+                del("notes", note.id);
+                drop(notes, note.id);
                 renderNotes();
               })
             );
-            b.appendChild(txt);
-            b.appendChild(act);
-            r.appendChild(b);
+            body.appendChild(textBox);
+            body.appendChild(actions);
+            row.appendChild(body);
           }
-          return r;
+          return row;
         }
 
         /* ---------- setup ---------- */
-        function setView(v) {
-          $("tasksView").hidden = v !== "tasks";
-          $("notesView").hidden = v !== "notes";
-          $("tabTasks").setAttribute("aria-selected", String(v === "tasks"));
-          $("tabNotes").setAttribute("aria-selected", String(v === "notes"));
+        function closeDrawer() {
+          document.body.classList.remove("drawer-open");
+          var menuButton = $("menuBtn");
+          var backdrop = $("backdrop");
+          if (menuButton) menuButton.setAttribute("aria-expanded", "false");
+          if (backdrop) backdrop.hidden = true;
         }
-        function widen(S, d) {
-          var ch = false;
-          if (S.from && d < S.from) {
-            S.from = d;
-            ch = true;
+        function openDrawer() {
+          if (!document.body.classList.contains("signed-in")) return;
+          document.body.classList.add("drawer-open");
+          $("menuBtn").setAttribute("aria-expanded", "true");
+          $("backdrop").hidden = false;
+        }
+        function setView(view) {
+          $("tasksView").hidden = view !== "tasks";
+          $("notesView").hidden = view !== "notes";
+          $("tabTasks").setAttribute("aria-selected", String(view === "tasks"));
+          $("tabNotes").setAttribute("aria-selected", String(view === "notes"));
+          closeDrawer();
+        }
+        function widen(state, dateText) {
+          var changed = false;
+          if (state.from && dateText < state.from) {
+            state.from = dateText;
+            changed = true;
           }
-          if (S.to && d > S.to) {
-            S.to = d;
-            ch = true;
+          if (state.to && dateText > state.to) {
+            state.to = dateText;
+            changed = true;
           }
-          if (ch) {
-            S.preset = "custom";
-            S.sync();
+          if (changed) {
+            state.preset = "custom";
+            state.sync();
           }
         }
         function setup() {
           $("ddst").appendChild(
             dd({
               get: function () {
-                return cs;
+                return composerStatus;
               },
-              set: function (v) {
-                cs = v;
+              set: function (value) {
+                composerStatus = value;
               },
               items: STAT,
             })
@@ -2234,50 +2608,50 @@
             dd({
               ic: IC.tag,
               get: function () {
-                return cf;
+                return composerFlag;
               },
-              set: function (v) {
-                cf = v;
+              set: function (value) {
+                composerFlag = value;
               },
               items: FLAGS,
             })
           );
           $("tdate").value = today();
           $("ndate").value = today();
-          var fl = dd({
+          var flagMenu = dd({
             ic: IC.tag,
             get: function () {
               return T.flag;
             },
-            set: function (v) {
-              T.flag = v;
+            set: function (value) {
+              T.flag = value;
               renderTasks();
             },
-            items: [{ id: "all", l: "All tags" }].concat(FLAGS),
+            items: [{ id: "all", label: "All tags" }].concat(FLAGS),
           });
-          var tq = el("input");
-          tq.type = "text";
-          tq.placeholder = "Search tasks";
-          tq.setAttribute("aria-label", "Search tasks");
-          tq.oninput = function () {
-            T.q = tq.value;
+          var taskSearch = el("input");
+          taskSearch.type = "text";
+          taskSearch.placeholder = "Search tasks";
+          taskSearch.setAttribute("aria-label", "Search tasks");
+          taskSearch.oninput = function () {
+            T.q = taskSearch.value;
             renderTasks();
           };
-          buildBar($("tbar"), T, renderTasks, [tq, fl]);
-          var sq = el("input");
-          sq.type = "text";
-          sq.placeholder = "Search notes";
-          sq.setAttribute("aria-label", "Search notes");
-          sq.oninput = function () {
-            N.q = sq.value;
+          buildBar($("tbar"), T, renderTasks, [taskSearch, flagMenu]);
+          var noteSearch = el("input");
+          noteSearch.type = "text";
+          noteSearch.placeholder = "Search notes";
+          noteSearch.setAttribute("aria-label", "Search notes");
+          noteSearch.oninput = function () {
+            N.q = noteSearch.value;
             renderNotes();
           };
-          buildBar($("nbar"), N, renderNotes, [sq]);
+          buildBar($("nbar"), N, renderNotes, [noteSearch]);
           Array.prototype.forEach.call(
             document.querySelectorAll("[data-list]"),
-            function (b) {
-              b.onclick = function () {
-                toggleList($(b.dataset["for"]), b.dataset.list);
+            function (button) {
+              button.onclick = function () {
+                toggleList($(button.dataset["for"]), button.dataset.list);
               };
             }
           );
@@ -2295,43 +2669,48 @@
             if (!user) return;
             setView("notes");
           };
-          $("tform").addEventListener("submit", function (e) {
-            e.preventDefault();
-            var v = $("ttext").value.trim();
-            if (!v) return;
+          $("menuBtn").onclick = function () {
+            if (document.body.classList.contains("drawer-open")) closeDrawer();
+            else openDrawer();
+          };
+          $("backdrop").onclick = closeDrawer;
+          $("tform").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var text = $("ttext").value.trim();
+            if (!text) return;
             var now = Date.now(),
-              t = {
+              task = {
                 id: uid(),
-                text: v,
-                flag: cf,
-                status: cs,
+                text: text,
+                flag: composerFlag,
+                status: composerStatus,
                 date: $("tdate").value || today(),
                 created: now,
                 updated: now,
               };
-            tasks.push(t);
-            put("tasks", t);
+            tasks.push(task);
+            put("tasks", task);
             T.status = "all";
-            widen(T, t.date);
+            widen(T, task.date);
             $("ttext").value = "";
             renderTasks();
           });
-          $("nform").addEventListener("submit", function (e) {
-            e.preventDefault();
-            var t = $("ntitle").value.trim();
-            if (!t) return;
+          $("nform").addEventListener("submit", function (event) {
+            event.preventDefault();
+            var title = $("ntitle").value.trim();
+            if (!title) return;
             var now = Date.now(),
-              n = {
+              note = {
                 id: uid(),
-                title: t,
+                title: title,
                 body: $("nbody").value.trim(),
                 date: $("ndate").value || today(),
                 created: now,
                 updated: now,
               };
-            notes.push(n);
-            put("notes", n);
-            widen(N, n.date);
+            notes.push(note);
+            put("notes", note);
+            widen(N, note.date);
             $("ntitle").value = "";
             $("nbody").value = "";
             $("ntitle").focus();
@@ -2340,12 +2719,12 @@
         }
 
         function migrate(list, store) {
-          return list.map(function (x) {
-            if (!x.date) {
-              x.date = ymd(new Date(x.created || Date.now()));
-              put(store, x);
+          return list.map(function (record) {
+            if (!record.date) {
+              record.date = ymd(new Date(record.created || Date.now()));
+              put(store, record);
             }
-            return x;
+            return record;
           });
         }
         function clearAuthForm() {
@@ -2354,16 +2733,16 @@
           $("authName").value = "";
           $("authErr").hidden = true;
         }
-        function personName(u) {
-          var name = (u && u.displayName) || "";
+        function personName(account) {
+          var name = (account && account.displayName) || "";
           if (name.trim()) return name.trim();
-          var email = (u && u.email) || "";
+          var email = (account && account.email) || "";
           return email.split("@")[0] || "Account";
         }
-        function signedInWith(u) {
+        function signedInWith(account) {
           var ids = {};
-          ((u && u.providerData) || []).forEach(function (p) {
-            ids[p.providerId] = true;
+          ((account && account.providerData) || []).forEach(function (provider) {
+            ids[provider.providerId] = true;
           });
           if (ids["google.com"] && ids["password"]) return "email and Google";
           if (ids["google.com"]) return "Google";
@@ -2399,31 +2778,58 @@
         }
         function closeProfile() {
           $("profileMenu").hidden = true;
+          $("topMenu").hidden = true;
+          $("accountBtn").setAttribute("aria-expanded", "false");
           $("avatarBtn").setAttribute("aria-expanded", "false");
+        }
+        function toggleProfile(menu, button, event) {
+          event.stopPropagation();
+          var willOpen = menu.hidden;
+          closeProfile();
+          if (!willOpen) return;
+          menu.hidden = false;
+          button.setAttribute("aria-expanded", "true");
+        }
+        function signOut() {
+          closeProfile();
+          clearAuthForm();
+          if (typeof firebase === "undefined") return;
+          firebase.auth().signOut();
         }
         function showAuth() {
           closeProfile();
+          closeDrawer();
+          document.body.classList.remove("signed-in");
           $("authView").hidden = false;
           $("tasksView").hidden = true;
           $("notesView").hidden = true;
           $("account").hidden = true;
+          $("topAccount").hidden = true;
+          $("menuBtn").hidden = true;
           $("navLogin").hidden = false;
           $("tabs").hidden = true;
           $("foot").textContent =
             "Sign in to sync this account across devices.";
         }
-        function showApp(u) {
-          var name = personName(u);
+        function showApp(account) {
+          var name = personName(account);
+          var letters = initials(name);
           closeProfile();
+          document.body.classList.add("signed-in");
           $("authView").hidden = true;
           $("authErr").hidden = true;
           $("navLogin").hidden = true;
           $("account").hidden = false;
+          $("topAccount").hidden = false;
+          $("menuBtn").hidden = false;
           $("tabs").hidden = false;
-          $("avatarBtn").textContent = initials(name);
+          $("avatarBtn").textContent = letters;
           $("avatarBtn").title = name;
+          $("sideInitials").textContent = letters;
           $("profileName").textContent = name;
-          $("accountEmail").textContent = u.email || "";
+          $("topName").textContent = name;
+          $("accountEmail").textContent = account.email || "";
+          $("topEmail").textContent = account.email || "";
           $("foot").textContent = ready
             ? "Signed in. This account stays in sync across devices."
             : "Loading your tasks and notes…";
@@ -2510,31 +2916,31 @@
               })
               .catch(authError);
           };
-          $("authForm").addEventListener("submit", function (e) {
-            e.preventDefault();
+          $("authForm").addEventListener("submit", function (event) {
+            event.preventDefault();
             if (!configured()) return;
             $("authErr").hidden = true;
             var email = $("authEmail").value.trim(),
-              pass = $("authPass").value,
+              password = $("authPass").value,
               name = $("authName").value.trim(),
               auth = firebase.auth(),
-              p;
+              pendingSignIn;
             if (signingUp && !name) {
               authError({ message: "Enter your full name." });
               return;
             }
-            p = signingUp
+            pendingSignIn = signingUp
               ? auth
-                  .createUserWithEmailAndPassword(email, pass)
-                  .then(function (cred) {
-                    return cred.user.updateProfile({ displayName: name });
+                  .createUserWithEmailAndPassword(email, password)
+                  .then(function (credential) {
+                    return credential.user.updateProfile({ displayName: name });
                   })
                   .then(function () {
                     var current = firebase.auth().currentUser;
                     if (current) showApp(current);
                   })
-              : auth.signInWithEmailAndPassword(email, pass);
-            p.catch(authError);
+              : auth.signInWithEmailAndPassword(email, password);
+            pendingSignIn.catch(authError);
           });
           $("authGoogle").onclick = signInGoogle;
           $("navLogin").onclick = function () {
@@ -2543,19 +2949,20 @@
             showAuth();
             $("authEmail").focus();
           };
-          $("avatarBtn").onclick = function (e) {
-            e.stopPropagation();
-            var open = $("profileMenu").hidden;
-            $("profileMenu").hidden = !open;
-            $("avatarBtn").setAttribute("aria-expanded", String(open));
+          $("avatarBtn").onclick = function (event) {
+            toggleProfile($("topMenu"), $("avatarBtn"), event);
+          };
+          $("accountBtn").onclick = function (event) {
+            toggleProfile($("profileMenu"), $("accountBtn"), event);
           };
           document.addEventListener("click", closeProfile);
-          $("signOut").onclick = function (e) {
-            e.stopPropagation();
-            closeProfile();
-            clearAuthForm();
-            if (typeof firebase === "undefined") return;
-            firebase.auth().signOut();
+          $("signOut").onclick = function (event) {
+            event.stopPropagation();
+            signOut();
+          };
+          $("signOutTop").onclick = function (event) {
+            event.stopPropagation();
+            signOut();
           };
         }
         function boot() {
@@ -2577,17 +2984,17 @@
           try {
             fs.settings({ useFetchStreams: false });
           } catch (e) {}
-          firebase.auth().onAuthStateChanged(function (u) {
-            if (authSettled && u && user && u.uid === user.uid) {
-              user = u;
-              showApp(u);
+          firebase.auth().onAuthStateChanged(function (account) {
+            if (authSettled && account && user && account.uid === user.uid) {
+              user = account;
+              showApp(account);
               return;
             }
             var mine = ++session;
             authSettled = true;
             uploadStarted = false;
             stopListen();
-            user = u;
+            user = account;
             tasks = [];
             notes = [];
             pending = { tasks: {}, notes: {} };
@@ -2598,12 +3005,12 @@
             loadProblem = "";
             ready = false;
             hideBoot();
-            if (!u) {
+            if (!account) {
               clearAuthForm();
               showAuth();
               return;
             }
-            showApp(u);
+            showApp(account);
             renderTasks();
             renderNotes();
             if (mine !== session) return;
